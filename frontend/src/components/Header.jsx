@@ -1,7 +1,7 @@
 // src/components/Header.jsx
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import styled from "styled-components";
 
 const HeaderWrapper = styled.header`
   width: 100%;
@@ -15,10 +15,10 @@ const HeaderWrapper = styled.header`
 
 const HeaderContainer = styled.div`
   width: 100%;
-  max-width: 100%;   /* <-- make header span full width */
+  max-width: 100%;
   margin: 0;
-
   padding: 0 24px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -69,7 +69,7 @@ const LogoText = styled.span`
 const DesktopNav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 18px;
 
   @media (max-width: 768px) {
     display: none;
@@ -81,10 +81,9 @@ const NavLink = styled(Link)`
   text-decoration: none;
   font-weight: 500;
   font-size: 15px;
-  padding: 8px 16px;
+  padding: 8px 14px;
   border-radius: 6px;
   transition: all 0.2s ease;
-  position: relative;
 
   &:hover {
     color: #2563eb;
@@ -173,11 +172,9 @@ const HamburgerIcon = styled.div`
   &.open span:nth-child(1) {
     transform: translateY(9px) rotate(45deg);
   }
-
   &.open span:nth-child(2) {
     opacity: 0;
   }
-
   &.open span:nth-child(3) {
     transform: translateY(-9px) rotate(-45deg);
   }
@@ -197,7 +194,7 @@ const MobileMenu = styled.div`
   transition: max-height 0.3s ease;
 
   &.open {
-    max-height: 500px;
+    max-height: 520px;
   }
 
   @media (max-width: 768px) {
@@ -224,7 +221,6 @@ const MobileNavLink = styled(Link)`
   font-weight: 500;
   font-size: 15px;
   transition: all 0.2s ease;
-  text-align: left;
 
   &:hover {
     background-color: #f8fafc;
@@ -251,7 +247,6 @@ const MobileButton = styled(Link)`
   text-decoration: none;
   transition: all 0.2s ease;
   text-align: center;
-  cursor: pointer;
 
   &.outline {
     background: transparent;
@@ -280,27 +275,13 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
-  // TODO: Replace with actual auth state from useAuth hook
+  // Keep placeholders (your core logic stays same)
   const user = null;
   const userType = null; // 'landlord' or 'tenant'
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+  const isActive = (path) => (location.pathname === path ? "active" : "");
 
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-
-  const isActive = (path) => {
-    return location.pathname === path ? 'active' : '';
-  };
-
-  const handleLogout = () => {
-    // TODO: Implement logout
-    console.log('Logout');
-    closeMobileMenu();
-  };
+  const closeMenu = () => setIsMobileMenuOpen(false);
 
   return (
     <HeaderWrapper>
@@ -311,26 +292,30 @@ const Header = () => {
         </Logo>
 
         <DesktopNav>
-          <NavLink to="/" className={isActive('/')}>
-            Home
-          </NavLink>
-          <NavLink to="/browse" className={isActive('/browse')}>
-            Browse Rooms
-          </NavLink>
-          
-          {user && userType === 'landlord' && (
+          <NavLink to="/" className={isActive("/")}>Home</NavLink>
+          <NavLink to="/browse" className={isActive("/browse")}>Browse Rooms</NavLink>
+          <NavLink to="/about" className={isActive("/about")}>About</NavLink>
+          <NavLink to="/contact" className={isActive("/contact")}>Contact</NavLink>
+
+          {user && userType === "landlord" && (
             <>
-              <NavLink to="/landlord/dashboard" className={location.pathname.startsWith('/landlord') ? 'active' : ''}>
+              <NavLink
+                to="/landlord/dashboard"
+                className={location.pathname.startsWith("/landlord") ? "active" : ""}
+              >
                 Dashboard
               </NavLink>
-              <NavLink to="/landlord/add-room" className={isActive('/landlord/add-room')}>
+              <NavLink to="/landlord/add-room" className={isActive("/landlord/add-room")}>
                 Add Room
               </NavLink>
             </>
           )}
-          
-          {user && userType === 'tenant' && (
-            <NavLink to="/tenant/dashboard" className={location.pathname.startsWith('/tenant') ? 'active' : ''}>
+
+          {user && userType === "tenant" && (
+            <NavLink
+              to="/tenant/dashboard"
+              className={location.pathname.startsWith("/tenant") ? "active" : ""}
+            >
               Dashboard
             </NavLink>
           )}
@@ -339,76 +324,66 @@ const Header = () => {
         <NavActions>
           {!user ? (
             <>
-              <Button to="/login" className="outline">
-                Login
-              </Button>
-              <Button to="/register" className="primary">
-                Sign Up
-              </Button>
+              <Button to="/login" className="outline">Login</Button>
+              <Button to="/register" className="primary">Sign Up</Button>
             </>
           ) : (
             <>
-              <Button to="/profile" className="outline">
-                Profile
-              </Button>
-              <Button as="button" className="outline" onClick={handleLogout}>
-                Logout
-              </Button>
+              <Button to="/profile" className="outline">Profile</Button>
+              <Button to="/logout" className="outline">Logout</Button>
             </>
           )}
         </NavActions>
 
-        <MobileMenuButton onClick={toggleMobileMenu}>
-          <HamburgerIcon className={isMobileMenuOpen ? 'open' : ''}>
-            <span></span>
-            <span></span>
-            <span></span>
+        <MobileMenuButton onClick={() => setIsMobileMenuOpen((s) => !s)}>
+          <HamburgerIcon className={isMobileMenuOpen ? "open" : ""}>
+            <span />
+            <span />
+            <span />
           </HamburgerIcon>
         </MobileMenuButton>
       </HeaderContainer>
 
-      <MobileMenu className={isMobileMenuOpen ? 'open' : ''}>
+      <MobileMenu className={isMobileMenuOpen ? "open" : ""}>
         <MobileMenuContent>
           <MobileNavLinks>
-            <MobileNavLink 
-              to="/" 
-              className={isActive('/')}
-              onClick={closeMobileMenu}
-            >
+            <MobileNavLink to="/" className={isActive("/")} onClick={closeMenu}>
               Home
             </MobileNavLink>
-            <MobileNavLink 
-              to="/browse" 
-              className={isActive('/browse')}
-              onClick={closeMobileMenu}
-            >
+            <MobileNavLink to="/browse" className={isActive("/browse")} onClick={closeMenu}>
               Browse Rooms
             </MobileNavLink>
-            
-            {user && userType === 'landlord' && (
+            <MobileNavLink to="/about" className={isActive("/about")} onClick={closeMenu}>
+              About
+            </MobileNavLink>
+            <MobileNavLink to="/contact" className={isActive("/contact")} onClick={closeMenu}>
+              Contact
+            </MobileNavLink>
+
+            {user && userType === "landlord" && (
               <>
-                <MobileNavLink 
-                  to="/landlord/dashboard" 
-                  className={location.pathname.startsWith('/landlord') ? 'active' : ''}
-                  onClick={closeMobileMenu}
+                <MobileNavLink
+                  to="/landlord/dashboard"
+                  className={location.pathname.startsWith("/landlord") ? "active" : ""}
+                  onClick={closeMenu}
                 >
                   Dashboard
                 </MobileNavLink>
-                <MobileNavLink 
-                  to="/landlord/add-room" 
-                  className={isActive('/landlord/add-room')}
-                  onClick={closeMobileMenu}
+                <MobileNavLink
+                  to="/landlord/add-room"
+                  className={isActive("/landlord/add-room")}
+                  onClick={closeMenu}
                 >
                   Add Room
                 </MobileNavLink>
               </>
             )}
-            
-            {user && userType === 'tenant' && (
-              <MobileNavLink 
-                to="/tenant/dashboard" 
-                className={location.pathname.startsWith('/tenant') ? 'active' : ''}
-                onClick={closeMobileMenu}
+
+            {user && userType === "tenant" && (
+              <MobileNavLink
+                to="/tenant/dashboard"
+                className={location.pathname.startsWith("/tenant") ? "active" : ""}
+                onClick={closeMenu}
               >
                 Dashboard
               </MobileNavLink>
@@ -418,35 +393,19 @@ const Header = () => {
           <MobileActions>
             {!user ? (
               <>
-                <MobileButton 
-                  to="/login" 
-                  className="outline"
-                  onClick={closeMobileMenu}
-                >
+                <MobileButton to="/login" className="outline" onClick={closeMenu}>
                   Login
                 </MobileButton>
-                <MobileButton 
-                  to="/register" 
-                  className="primary"
-                  onClick={closeMobileMenu}
-                >
+                <MobileButton to="/register" className="primary" onClick={closeMenu}>
                   Sign Up
                 </MobileButton>
               </>
             ) : (
               <>
-                <MobileButton 
-                  to="/profile" 
-                  className="outline"
-                  onClick={closeMobileMenu}
-                >
+                <MobileButton to="/profile" className="outline" onClick={closeMenu}>
                   Profile
                 </MobileButton>
-                <MobileButton 
-                  as="button" 
-                  className="outline" 
-                  onClick={handleLogout}
-                >
+                <MobileButton to="/logout" className="outline" onClick={closeMenu}>
                   Logout
                 </MobileButton>
               </>

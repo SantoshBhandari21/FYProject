@@ -49,7 +49,7 @@ const Navbar = () => {
 
   return (
     <Nav>
-      <Brand>Rental System</Brand>
+      <Brand>myRentals</Brand>
 
       <NavLinks>
         {user ? (
@@ -58,6 +58,7 @@ const Navbar = () => {
           </NavButton>
         ) : (
           <>
+            <NavLink to="/BrowseRooms">Login</NavLink>
             <NavLink to="/login">Login</NavLink>
             <NavLink to="/signup">Sign Up</NavLink>
           </>

@@ -1,213 +1,180 @@
-
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-
-const Wrapper = styled.div`
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 40px 24px;
-`;
-
-const Form = styled.form`
-  max-width: 400px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`;
-
-const Input = styled.input`
-  padding: 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-`;
-
-const Select = styled.select`
-  padding: 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-`;
-
-const Button = styled.button`
-  padding: 12px;
-  border-radius: 6px;
-  border: none;
-  background: #2563eb;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-`;
-
-const SignUpPage = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('client');
-  const navigate = useNavigate();
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // TODO: send data to backend
-    console.log({ name, email, password, role });
-    navigate('/login');
-  };
-
-  return (
-    <Wrapper>
-      <h2>Create an Account</h2>
-      <Form onSubmit={handleSubmit}>
-        <Input 
-          type="text" 
-          placeholder="Name" 
-          value={name} 
-          onChange={(e) => setName(e.target.value)} 
-          required 
-        />
-        <Input 
-          type="email" 
-          placeholder="Email" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-          required 
-        />
-        <Input 
-          type="password" 
-          placeholder="Password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-          required 
-        />
-        <Select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="client">Client</option>
-          <option value="owner">Owner</option>
-          <option value="admin">Admin</option>
-        </Select>
-        <Button type="submit">Sign Up</Button>
-      </Form>
-    </Wrapper>
-  );
-};
-
-export default SignUpPage;
-
-/*
-
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import styled from "styled-components";
+import { register } from "../services/authService";
 
 const Page = styled.div`
   min-height: 100vh;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f3f4f6;
+  padding: 24px 16px;
+  background: #f1f5f9;
 `;
 
 const Card = styled.div`
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
   background: #ffffff;
   padding: 32px;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.08);
+
+  @media (max-width: 480px) {
+    padding: 22px;
+  }
 `;
 
 const Title = styled.h2`
-  text-align: center;
-  margin-bottom: 24px;
-  color: #111827;
+  margin: 0 0 8px;
+  font-weight: 900;
+  color: #0f172a;
+`;
+
+const Sub = styled.p`
+  margin: 0 0 18px;
+  color: #475569;
+  font-size: 14px;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 `;
 
 const Input = styled.input`
+  width: 100%;
   padding: 12px 14px;
-  border-radius: 8px;
-  border: 1px solid #9ca3af;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
   font-size: 14px;
-  background: #f9fafb;
-  color: #111827;
-
-  &::placeholder {
-    color: #6b7280;
-  }
+  background: #f8fafc;
+  color: #0f172a;
 
   &:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: rgba(37, 99, 235, 0.6);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
     background: #ffffff;
-  }
-
-  &:hover {
-    border-color: #2563eb;
   }
 `;
 
 const Select = styled.select`
+  width: 100%;
   padding: 12px 14px;
-  border-radius: 8px;
-  border: 1px solid #9ca3af;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
   font-size: 14px;
-  background: #f9fafb;
-  color: #111827;
-  cursor: pointer;
+  background: #f8fafc;
+  color: #0f172a;
 
   &:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: rgba(37, 99, 235, 0.6);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
     background: #ffffff;
-  }
-
-  &:hover {
-    border-color: #2563eb;
   }
 `;
 
 const Button = styled.button`
-  padding: 12px;
-  border-radius: 8px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
   border: none;
   background: #2563eb;
   color: white;
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: 900;
   cursor: pointer;
-  margin-top: 8px;
 
   &:hover {
     background: #1e40af;
   }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+`;
+
+const ErrorBox = styled.div`
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  font-size: 13px;
+`;
+
+const Footer = styled.div`
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  font-size: 14px;
+`;
+
+const SmallLink = styled(Link)`
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 800;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const SignUpPage = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState('client');
   const navigate = useNavigate();
+  const [params] = useSearchParams();
 
-  const handleSubmit = (e) => {
+  const type = (params.get("type") || "").toLowerCase();
+  const defaultRole = type === "owner" ? "owner" : "client";
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState(defaultRole);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const validatePassword = (pw) => {
+    if (!pw || pw.length < 6) return "Password must be at least 6 characters.";
+    return "";
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    // TODO: send data to backend
-    console.log({ name, email, password, role });
+    const pwErr = validatePassword(password);
+    if (pwErr) {
+      setError(pwErr);
+      return;
+    }
 
-    navigate('/login');
+    setLoading(true);
+    try {
+      await register({ name, email, password, role });
+      navigate("/login", { replace: true });
+    } catch (err) {
+      setError(err?.message || "Registration failed.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Page>
       <Card>
         <Title>Create an Account</Title>
+        <Sub>Create a Tenant or Owner account.</Sub>
+
+        {error && <ErrorBox>{error}</ErrorBox>}
 
         <Form onSubmit={handleSubmit}>
           <Input
@@ -216,6 +183,7 @@ const SignUpPage = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            autoComplete="name"
           />
 
           <Input
@@ -224,27 +192,35 @@ const SignUpPage = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete="email"
           />
 
           <Input
             type="password"
-            placeholder="Password"
+            placeholder="Password (min 6 characters)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            autoComplete="new-password"
           />
 
           <Select value={role} onChange={(e) => setRole(e.target.value)}>
             <option value="client">Tenant</option>
             <option value="owner">Owner</option>
-            <option value="admin">Admin</option>
           </Select>
 
-          <Button type="submit">Sign Up</Button>
+          <Button type="submit" disabled={loading}>
+            {loading ? "Creating..." : "Sign Up"}
+          </Button>
         </Form>
+
+        <Footer>
+          <SmallLink to="/login">Login</SmallLink>
+          <SmallLink to="/">Home</SmallLink>
+        </Footer>
       </Card>
     </Page>
   );
 };
 
-export default SignUpPage;*/
+export default SignUpPage;

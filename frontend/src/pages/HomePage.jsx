@@ -14,16 +14,24 @@ const Container = styled.div`
   }
 `;
 
-const HomePageWrapper = styled.div`
+const Page = styled.div`
   width: 100%;
   min-height: 100vh;
 `;
 
-const HeroSection = styled.section`
+const Section = styled.section`
   width: 100%;
+  padding: ${(p) => p.pad || "80px 0"};
+
+  @media (max-width: 768px) {
+    padding: ${(p) => p.padMobile || "60px 0"};
+  }
+`;
+
+/* HERO */
+const Hero = styled(Section)`
   background: linear-gradient(135deg, #d3daebff 0%, #bec8d6ff 100%);
-  color: #0f172a;
-  padding: 80px 0;
+  color: white;
   position: relative;
   overflow: hidden;
 
@@ -31,12 +39,8 @@ const HeroSection = styled.section`
     content: "";
     position: absolute;
     inset: 0;
-    background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><pattern id='grid' width='10' height='10' patternUnits='userSpaceOnUse'><path d='M 10 0 L 0 0 0 10' fill='none' stroke='rgba(255,255,255,0.35)' stroke-width='1'/></pattern></defs><rect width='100' height='100' fill='url(%23grid)' /></svg>");
-    opacity: 0.35;
-  }
-
-  @media (max-width: 768px) {
-    padding: 60px 0;
+    background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><pattern id='grid' width='10' height='10' patternUnits='userSpaceOnUse'><path d='M 10 0 L 0 0 0 10' fill='none' stroke='rgba(255,255,255,0.1)' stroke-width='1'/></pattern></defs><rect width='100' height='100' fill='url(%23grid)' /></svg>");
+    opacity: 0.3;
   }
 `;
 
@@ -44,69 +48,71 @@ const HeroContent = styled.div`
   position: relative;
   z-index: 1;
   text-align: center;
-  max-width: 860px;
+  max-width: 820px;
   margin: 0 auto;
 `;
 
-const HeroTitle = styled.h1`
+const H1 = styled.h1`
   font-size: 48px;
-  font-weight: 800;
-  margin-bottom: 18px;
-  line-height: 1.15;
-  color: #0f172a;
+  font-weight: 700;
+  margin: 0 0 24px;
+  line-height: 1.2;
 
   @media (max-width: 768px) {
     font-size: 32px;
+    margin-bottom: 16px;
   }
 `;
 
-const HeroSubtitle = styled.p`
-  font-size: 18px;
-  margin-bottom: 36px;
+const HeroText = styled.p`
+  font-size: 20px;
+  margin: 0 0 48px;
   opacity: 0.95;
   line-height: 1.6;
-  color: #0f172a;
 
   @media (max-width: 768px) {
-    font-size: 15px;
-    margin-bottom: 28px;
+    font-size: 16px;
+    margin-bottom: 32px;
   }
 `;
 
-const SearchForm = styled.form`
-  background: rgba(255, 255, 255, 0.35);
+const Form = styled.form`
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   border-radius: 12px;
-  padding: 28px;
-  margin-bottom: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  padding: 32px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  @media (max-width: 768px) {
+    padding: 24px;
+  }
 `;
 
-const SearchInputGroup = styled.div`
+const InputGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr auto;
-  gap: 14px;
+  gap: 16px;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
 `;
 
-const SearchInput = styled.input`
+const Input = styled.input`
   width: 100%;
-  padding: 14px 16px;
-  font-size: 15px;
-  border: 1px solid rgba(15, 23, 42, 0.15);
-  border-radius: 10px;
+  padding: 16px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.95);
-  color: #0f172a;
-  transition: all 0.2s ease;
+  color: #1e293b;
+  transition: 0.2s ease;
 
   &:focus {
     outline: none;
-    background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
-    border-color: rgba(37, 99, 235, 0.35);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
   }
 
   &::placeholder {
@@ -114,176 +120,203 @@ const SearchInput = styled.input`
   }
 `;
 
-const SearchButton = styled.button`
-  padding: 14px 22px;
-  background: #2563eb;
+const Button = styled.button`
+  padding: 16px 32px;
+  background: #1d4ed8;
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
   white-space: nowrap;
 
   &:hover {
-    background: #1e40af;
-    transform: translateY(-1px);
+    background: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  @media (max-width: 768px) {
+    padding: 14px 24px;
   }
 `;
 
-const QuickLinkContainer = styled.div`
+const LinkRow = styled.div`
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
 `;
 
-const QuickLink = styled(Link)`
-  padding: 10px 16px;
-  background: rgba(255, 255, 255, 0.25);
-  color: #0f172a;
-  border: 1px solid rgba(15, 23, 42, 0.15);
-  border-radius: 10px;
+const OutlineLink = styled(Link)`
+  padding: 12px 24px;
+  background: transparent;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
   text-decoration: none;
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.45);
-    border-color: rgba(37, 99, 235, 0.35);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: white;
+  }
+
+  @media (max-width: 768px) {
+    padding: 10px 20px;
+    font-size: 14px;
   }
 `;
 
-const FeaturesSection = styled.section`
-  width: 100%;
-  padding: 70px 0;
+/* FEATURES */
+const Features = styled(Section)`
   background: white;
 `;
 
 const SectionTitle = styled.h2`
   text-align: center;
-  font-size: 34px;
-  margin-bottom: 44px;
-  color: #0f172a;
-  font-weight: 800;
+  font-size: 40px;
+  margin: 0 0 60px;
+  color: #1e293b;
+  font-weight: 700;
 
   @media (max-width: 768px) {
-    font-size: 26px;
-    margin-bottom: 32px;
+    font-size: 28px;
+    margin-bottom: 40px;
   }
 `;
 
-const FeaturesGrid = styled.div`
+const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 22px;
+  gap: 32px;
 
   @media (max-width: 1200px) {
     grid-template-columns: repeat(2, 1fr);
   }
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 `;
 
-const FeatureCard = styled.div`
+const Card = styled.div`
   text-align: center;
-  padding: 26px;
-  border-radius: 14px;
+  padding: 32px;
+  border-radius: 12px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  transition: all 0.25s ease;
+  transition: 0.25s ease;
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 24px rgba(2, 6, 23, 0.08);
-    border-color: rgba(37, 99, 235, 0.35);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    border-color: #2563eb;
   }
 `;
 
-const FeatureIcon = styled.div`
+const Icon = styled.div`
   font-size: 44px;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 `;
 
-const FeatureTitle = styled.h3`
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: #0f172a;
-  font-weight: 800;
+const CardTitle = styled.h3`
+  font-size: 20px;
+  margin: 0 0 10px;
+  color: #1e293b;
+  font-weight: 700;
 `;
 
-const FeatureDescription = styled.p`
-  color: #475569;
+const CardText = styled.p`
+  margin: 0;
+  color: #64748b;
   line-height: 1.6;
-  font-size: 14px;
+  font-size: 15px;
 `;
 
-const CTASection = styled.section`
-  width: 100%;
-  padding: 70px 0;
+/* CTA */
+const CTA = styled(Section)`
   background: #f8fafc;
 `;
 
 const CTAGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 22px;
+  gap: 40px;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 `;
 
 const CTACard = styled.div`
   background: white;
-  padding: 34px;
-  border-radius: 14px;
-  box-shadow: 0 4px 10px rgba(2, 6, 23, 0.06);
+  padding: 48px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
   border: 1px solid #e2e8f0;
   text-align: center;
+
+  @media (max-width: 768px) {
+    padding: 32px;
+  }
 `;
 
 const CTATitle = styled.h3`
-  font-size: 22px;
-  margin-bottom: 12px;
+  font-size: 28px;
+  margin: 0 0 16px;
   color: #2563eb;
-  font-weight: 800;
+  font-weight: 700;
+
+  @media (max-width: 768px) {
+    font-size: 22px;
+  }
 `;
 
-const CTADescription = styled.p`
-  margin-bottom: 22px;
-  font-size: 15px;
+const CTAText = styled.p`
+  margin: 0 0 32px;
+  font-size: 16px;
   line-height: 1.6;
-  color: #475569;
+  color: #64748b;
+
+  @media (max-width: 768px) {
+    margin-bottom: 24px;
+    font-size: 15px;
+  }
 `;
 
-const CTAButtonGroup = styled.div`
+const BtnRow = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
-  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 const CTAButton = styled(Link)`
-  padding: 12px 18px;
-  border-radius: 10px;
-  font-weight: 800;
-  font-size: 14px;
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 15px;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: 0.2s ease;
   text-align: center;
 
   &.primary {
-    background: #2563eb;
+    background: #1d4ed8;
     color: white;
-    border: 2px solid #2563eb;
+    border: 2px solid #1d4ed8;
 
     &:hover {
-      background: #1e40af;
-      border-color: #1e40af;
-      transform: translateY(-1px);
+      background: #1e293b;
+      border-color: #1e293b;
+      transform: translateY(-2px);
     }
   }
 
@@ -295,7 +328,7 @@ const CTAButton = styled(Link)`
     &:hover {
       background: #2563eb;
       color: white;
-      transform: translateY(-1px);
+      transform: translateY(-2px);
     }
   }
 `;
@@ -307,127 +340,115 @@ const HomePage = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const params = new URLSearchParams();
+    const searchParams = new URLSearchParams();
 
-    if (searchLocation.trim()) params.append("location", searchLocation.trim());
-    if (maxPrice.trim()) params.append("maxPrice", maxPrice.trim());
+    if (searchLocation.trim()) searchParams.append("location", searchLocation.trim());
+    if (maxPrice.trim()) searchParams.append("maxPrice", maxPrice.trim());
 
-    navigate(`/browse?${params.toString()}`);
+    navigate(`/browse?${searchParams.toString()}`);
   };
 
   return (
-    <HomePageWrapper>
-      <HeroSection>
+    <Page>
+      <Hero pad="80px 0" padMobile="60px 0">
         <Container>
           <HeroContent>
-            <HeroTitle>Find Your Perfect Room</HeroTitle>
-            <HeroSubtitle>
-              Browse rooms, filter by location and price, and book securely in minutes.
-            </HeroSubtitle>
+            <H1>Find Your Perfect Room</H1>
+            <HeroText>
+              Discover comfortable and affordable rooms for rent in your area.
+              Book securely for at least one month.
+            </HeroText>
 
-            <SearchForm onSubmit={handleSearch}>
-              <SearchInputGroup>
-                <SearchInput
+            <Form onSubmit={handleSearch}>
+              <InputGrid>
+                <Input
                   type="text"
-                  placeholder="Enter location (e.g., Kathmandu)"
+                  placeholder="Enter location (e.g., Pokhara)"
                   value={searchLocation}
                   onChange={(e) => setSearchLocation(e.target.value)}
                 />
-                <SearchInput
+                <Input
                   type="number"
                   placeholder="Max price per month"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
                   min="0"
                 />
-                <SearchButton type="submit">Search Rooms</SearchButton>
-              </SearchInputGroup>
-            </SearchForm>
+                <Button type="submit">Search Rooms</Button>
+              </InputGrid>
+            </Form>
 
-            <QuickLinkContainer>
-              <QuickLink to="/browse">Browse All Rooms</QuickLink>
-              <QuickLink to="/login">Login</QuickLink>
-              <QuickLink to="/register?type=tenant">Sign Up</QuickLink>
-            </QuickLinkContainer>
+            <LinkRow>
+              <OutlineLink to="/browse">Browse All Rooms</OutlineLink>
+            </LinkRow>
           </HeroContent>
         </Container>
-      </HeroSection>
+      </Hero>
 
-      <FeaturesSection>
+      <Features>
         <Container>
           <SectionTitle>Why Choose myRentals?</SectionTitle>
-          <FeaturesGrid>
-            <FeatureCard>
-              <FeatureIcon>🔍</FeatureIcon>
-              <FeatureTitle>Easy Search</FeatureTitle>
-              <FeatureDescription>
-                Filter rooms by location, price, and availability.
-              </FeatureDescription>
-            </FeatureCard>
 
-            <FeatureCard>
-              <FeatureIcon>✅</FeatureIcon>
-              <FeatureTitle>Trusted Listings</FeatureTitle>
-              <FeatureDescription>
-                Owners manage accurate details and photos for each listing.
-              </FeatureDescription>
-            </FeatureCard>
+          <Grid>
+            <Card>
+              <Icon>🔍</Icon>
+              <CardTitle>Easy Search</CardTitle>
+              <CardText>Find rooms that match your preferences with filters.</CardText>
+            </Card>
 
-            <FeatureCard>
-              <FeatureIcon>💳</FeatureIcon>
-              <FeatureTitle>Secure Payments</FeatureTitle>
-              <FeatureDescription>
-                Pay via eSewa and track payment status and invoices.
-              </FeatureDescription>
-            </FeatureCard>
+            <Card>
+              <Icon>✅</Icon>
+              <CardTitle>Trusted Listings</CardTitle>
+              <CardText>Verified room details from registered owners.</CardText>
+            </Card>
 
-            <FeatureCard>
-              <FeatureIcon>📄</FeatureIcon>
-              <FeatureTitle>Invoices</FeatureTitle>
-              <FeatureDescription>
-                Auto-generated invoices for every booking and payment.
-              </FeatureDescription>
-            </FeatureCard>
-          </FeaturesGrid>
+            <Card>
+              <Icon>💳</Icon>
+              <CardTitle>Payments & Invoices</CardTitle>
+              <CardText>eSewa payments with auto-generated invoices.</CardText>
+            </Card>
+
+            <Card>
+              <Icon>⭐</Icon>
+              <CardTitle>Reviews</CardTitle>
+              <CardText>Only booked tenants can leave room reviews.</CardText>
+            </Card>
+          </Grid>
         </Container>
-      </FeaturesSection>
+      </Features>
 
-      <CTASection>
+      <CTA>
         <Container>
           <CTAGrid>
             <CTACard>
               <CTATitle>Looking for a Room?</CTATitle>
-              <CTADescription>
-                Browse available rooms and book for at least one month.
-              </CTADescription>
-              <CTAButtonGroup>
+              <CTAText>Browse available rooms and book instantly (minimum 1 month).</CTAText>
+              <BtnRow>
                 <CTAButton to="/browse" className="primary">
                   Browse Rooms
                 </CTAButton>
                 <CTAButton to="/register?type=tenant" className="secondary">
                   Sign Up as Tenant
                 </CTAButton>
-              </CTAButtonGroup>
+              </BtnRow>
             </CTACard>
 
             <CTACard>
               <CTATitle>Have a Room to Rent?</CTATitle>
-              <CTADescription>
-                Create an owner account and start listing rooms in minutes.
-              </CTADescription>
-              <CTAButtonGroup>
+              <CTAText>Create an owner account and start listing rooms.</CTAText>
+              <BtnRow>
                 <CTAButton to="/register?type=owner" className="primary">
                   List Your Room
                 </CTAButton>
                 <CTAButton to="/login" className="secondary">
                   Owner Login
                 </CTAButton>
-              </CTAButtonGroup>
+              </BtnRow>
             </CTACard>
           </CTAGrid>
         </Container>
-      </CTASection>
-    </HomePageWrapper>
+      </CTA>
+    </Page>
   );
 };
 
