@@ -1,109 +1,87 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { get, run } = require("../db");
+const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
 
-/**
- * TEMP in-memory DB (prototype)
- * Later replace with MySQL/SQLite queries.
- */
-const db = {
-  users: [
-    // ✅ one admin seeded (cannot be created from signup)
-    // password = Admin@123
-    // We'll hash it at runtime if not hashed yet.
-    {
-      id: "admin_1",
-      name: "System Admin",
-      email: "admin@demo.com",
-      passwordHash: "", // filled on first run
-      role: "admin",
-      isActive: true,
-    },
-  ],
+function makeToken(user) {
+  return jwt.sign(
+    { userId: user.id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+}
 
-  async findUserByEmail(email) {
-    return this.users.find((u) => u.email === email) || null;
-  },
-
-  async createUser(user) {
-    this.users.push(user);
-    return user;
-  },
-};
-
-// Seed admin password hash once
-(async () => {
-  const admin = db.users[0];
-  if (!admin.passwordHash) {
-    admin.passwordHash = await bcrypt.hash("Admin@123", 10);
-  }
-})();
-
-const allowedSignupRoles = ["owner", "client"]; // ✅ no admin signup
-
+// POST /api/auth/register
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
-    if (!name || !email || !password || !role)
-      return res.status(400).json({ message: "All fields are required." });
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Missing fields" });
+    }
 
-    if (!allowedSignupRoles.includes(role))
-      return res.status(400).json({ message: "Invalid role for signup." });
+    // Only allow owner/client from signup UI (prevents anyone creating admin)
+    const safeRole = role === "owner" ? "owner" : "client";
 
-    const existing = await db.findUserByEmail(email.toLowerCase());
-    if (existing) return res.status(409).json({ message: "Email already registered." });
+    const existing = await get("SELECT id FROM users WHERE email = ?", [email]);
+    if (existing) return res.status(409).json({ message: "Email already registered" });
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const hash = await bcrypt.hash(password, 10);
 
-    const user = {
-      id: `u_${Date.now()}`,
-      name,
-      email: email.toLowerCase(),
-      passwordHash,
-      role, // owner | client
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    };
+    const result = await run(
+      "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)",
+      [name, email, hash, safeRole]
+    );
 
-    await db.createUser(user);
-
-    return res.status(201).json({ message: "Registered successfully." });
-  } catch {
-    return res.status(500).json({ message: "Server error." });
-  }
+    return res.status(201).json({ message: "Registered", userId: result.lastID });
+  }  catch (e) {
+  console.log("==== REGISTER ERROR START ====");
+  console.log(e);
+  console.log("Message:", e.message);
+  console.log("Stack:", e.stack);
+  console.log("Body:", req.body);
+  console.log("==== REGISTER ERROR END ====");
+  return res.status(500).json({ message: e.message || "Server error" });
+}
 });
 
+// POST /api/auth/login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ message: "Missing fields" });
 
-    if (!email || !password)
-      return res.status(400).json({ message: "Email and password are required." });
-
-    const user = await db.findUserByEmail(email.toLowerCase());
-    if (!user) return res.status(401).json({ message: "Invalid credentials." });
-
-    if (!user.isActive) return res.status(403).json({ message: "Account is blocked." });
-
-    const ok = await bcrypt.compare(password, user.passwordHash);
-    if (!ok) return res.status(401).json({ message: "Invalid credentials." });
-
-    const token = jwt.sign(
-      { id: user.id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "2h" }
+    const user = await get(
+      "SELECT id, name, email, password_hash, role FROM users WHERE email = ?",
+      [email]
     );
 
+    if (!user) return res.status(401).json({ message: "Invalid email or password" });
+
+    const ok = await bcrypt.compare(password, user.password_hash);
+    if (!ok) return res.status(401).json({ message: "Invalid email or password" });
+
+    const token = makeToken(user);
+
+    // IMPORTANT: your frontend expects user.role
     return res.json({
       token,
       user: { id: user.id, name: user.name, email: user.email, role: user.role },
     });
-  } catch {
-    return res.status(500).json({ message: "Server error." });
+  } catch (e){
+    console.error("LOGIN ERROR:", e);
+    return res.status(500).json({ message: "Server error" });
   }
+});
+
+// GET /api/auth/me
+router.get("/me", requireAuth, async (req, res) => {
+  const user = await get("SELECT id, name, email, role FROM users WHERE id = ?", [req.user.userId]);
+  if (!user) return res.status(404).json({ message: "User not found" });
+  return res.json({ user });
 });
 
 module.exports = router;

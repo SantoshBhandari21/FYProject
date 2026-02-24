@@ -1,3 +1,4 @@
+//IMPORTS
 import React, { useMemo, useState } from "react";
 import {
   Search,
@@ -19,7 +20,8 @@ import {
 import styled, { css } from "styled-components";
 import { useNavigate } from "react-router-dom";
 
-/* -------------------- Static Data (unchanged) -------------------- */
+/* -------------------- Static Rooms Data -------------------- 
+NOTE: In a real app, ROOMS would be fetched from a backend API.*/
 const ROOMS = [
   {
     id: 1,
@@ -251,7 +253,7 @@ const ROOMS = [
     description: "Luxurious villa with premium amenities and spacious layout.",
   },
 ];
-
+//Filtering options using amenities
 const AMENITIES = [
   { id: "wifi", label: "WiFi", icon: Wifi },
   { id: "parking", label: "Parking", icon: Car },
@@ -269,7 +271,7 @@ const controlFocus = css`
     background: #fff;
   }
 `;
-
+//page layout style
 const Page = styled.div`
   min-height: 100vh;
   width: 100%;
@@ -292,7 +294,7 @@ const SearchInner = styled.div`
   margin: 0 auto;
   padding: 18px 16px;
 `;
-
+//Searh bar layout style
 const SearchGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr auto;
@@ -458,7 +460,7 @@ const Select = styled.select`
   color: #0f172a;
   ${controlFocus}
 `;
-
+//Min and Max price input styles
 const NumberRow = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -497,7 +499,7 @@ const Chip = styled.button`
     border-color: #94a3b8;
   }
 `;
-
+//Room cards grid layout
 const GridWrap = styled.div`
   display: grid;
   grid-template-columns: ${(p) => (p.view === "grid" ? "repeat(3, 1fr)" : "1fr")};
@@ -630,7 +632,7 @@ const Tag = styled.span`
   font-size: 12px;
   text-transform: capitalize;
 `;
-
+// bottom row of card with rating, price and button
 const BottomRow = styled.div`
   display: flex;
   align-items: center;
@@ -672,23 +674,23 @@ const DetailsBtn = styled.button`
     border-color: #1e40af;
   }
 `;
-
+//when no roms match the filters
 const Empty = styled.div`
   text-align: center;
   padding: 60px 12px;
   color: #475569;
 `;
 
-/* -------------------- Component -------------------- */
+/* -------------------- main Component -------------------- */
 const BrowseRooms = () => {
   const navigate = useNavigate();
-
+//inputs and toggles
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("");
   const [viewMode, setViewMode] = useState("grid");
   const [showFilters, setShowFilters] = useState(false);
   const [favorites, setFavorites] = useState([]);
-
+//filtering fields
   const [filters, setFilters] = useState({
     priceRange: [0, 100000],
     roomType: "all",
@@ -696,7 +698,7 @@ const BrowseRooms = () => {
     bedrooms: "all",
     sortBy: "featured",
   });
-
+//add or remove favorites
   const toggleFavorite = (roomId) => {
     setFavorites((prev) =>
       prev.includes(roomId) ? prev.filter((id) => id !== roomId) : [...prev, roomId]
@@ -706,7 +708,7 @@ const BrowseRooms = () => {
   const setFilter = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
-
+//toggle amenities in filter
   const toggleAmenity = (amenity) => {
     setFilters((prev) => ({
       ...prev,
@@ -715,7 +717,7 @@ const BrowseRooms = () => {
         : [...prev.amenities, amenity],
     }));
   };
-
+//filtering logic using useMemo for optimization
   const filteredRooms = useMemo(() => {
     const q = searchQuery.toLowerCase();
     const loc = location.toLowerCase();
@@ -748,7 +750,7 @@ const BrowseRooms = () => {
       );
     });
   }, [searchQuery, location, filters]);
-
+//sort rooms based on selected option
   const sortedRooms = useMemo(() => {
     const list = [...filteredRooms];
     switch (filters.sortBy) {
@@ -763,12 +765,13 @@ const BrowseRooms = () => {
     }
   }, [filteredRooms, filters.sortBy]);
 
+//navigate to login after clicking view details and return after login
   const goToLoginForRoom = (roomId) => {
     navigate("/login", {
       state: { returnTo: `/rooms/${roomId}` },
     });
   };
-
+//Room card component
   const RoomCard = ({ room, isListView }) => {
     const isFavorite = favorites.includes(room.id);
 
@@ -794,7 +797,7 @@ const BrowseRooms = () => {
 
         <CardBody>
           <CardTitle>{room.title}</CardTitle>
-
+          {/*location display based on view*/}
           <Meta>
             <MapPin size={16} />
             <span>{isListView ? room.address : room.location}</span>
@@ -837,7 +840,7 @@ const BrowseRooms = () => {
       </Card>
     );
   };
-
+//main return
   return (
     <Page>
       <StickyTop>
@@ -932,7 +935,7 @@ const BrowseRooms = () => {
                       <option value="4">4+</option>
                     </Select>
                   </Field>
-
+                  {/*sorting options*/}
                   <Field>
                     <Label>Sort By</Label>
                     <Select value={filters.sortBy} onChange={(e) => setFilter("sortBy", e.target.value)}>
@@ -943,7 +946,7 @@ const BrowseRooms = () => {
                     </Select>
                   </Field>
                 </FiltersGrid>
-
+                {/*amenities filter*/}
                 <div style={{ marginTop: 12 }}>
                   <Label>Amenities</Label>
                   <Chips>
@@ -987,7 +990,7 @@ const BrowseRooms = () => {
             <RoomCard key={room.id} room={room} isListView={viewMode === "list"} />
           ))}
         </GridWrap>
-
+        {/*message when filter doesnt match any rooms*/}
         {sortedRooms.length === 0 && (
           <Empty>
             <Home size={52} style={{ color: "#94a3b8" }} />
