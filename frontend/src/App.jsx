@@ -2,10 +2,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import styled from "styled-components";
 
-// Import components and styles
+// Global styles + layout
 import GlobalStyles from "./styles/GlobalStyles";
 import Header from "./components/Header";
 
+// Pages (based on your folder structure: src/pages/*.jsx)
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
@@ -14,6 +15,9 @@ import LogoutPage from "./pages/LogoutPage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 
+import AdminDashboard from "./pages/AdminDashboard";
+import OwnerDashboard from "./pages/OwnerDashboard";
+import ClientDashboard from "./pages/ClientDashboard";
 
 // Auth Context
 import { AuthProvider } from "./hooks/useAuth.jsx";
@@ -40,6 +44,7 @@ function App() {
 
           <Main>
             <Routes>
+              {/* Public */}
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<SignUpPage />} />
@@ -48,7 +53,12 @@ function App() {
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
 
+              {/* Dashboards (must match LoginPage navigate paths) */}
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/owner/dashboard" element={<OwnerDashboard />} />
+              <Route path="/client/dashboard" element={<ClientDashboard />} />
 
+              {/* 404 */}
               <Route
                 path="*"
                 element={
