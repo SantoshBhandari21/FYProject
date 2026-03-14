@@ -287,25 +287,38 @@ const Header = () => {
     <HeaderWrapper>
       <HeaderContainer>
         <Logo to="/">
-          <LogoIcon>🏠</LogoIcon>
+          <LogoIcon></LogoIcon>
           <LogoText>myRentals</LogoText>
         </Logo>
 
         <DesktopNav>
-          <NavLink to="/" className={isActive("/")}>Home</NavLink>
-          <NavLink to="/browse" className={isActive("/browse")}>Browse Rooms</NavLink>
-          <NavLink to="/about" className={isActive("/about")}>About</NavLink>
-          <NavLink to="/contact" className={isActive("/contact")}>Contact</NavLink>
+          <NavLink to="/" className={isActive("/")}>
+            Home
+          </NavLink>
+          <NavLink to="/browse" className={isActive("/browse")}>
+            Browse Rooms
+          </NavLink>
+          <NavLink to="/about" className={isActive("/about")}>
+            About
+          </NavLink>
+          <NavLink to="/contact" className={isActive("/contact")}>
+            Contact
+          </NavLink>
 
           {user && userType === "landlord" && (
             <>
               <NavLink
                 to="/landlord/dashboard"
-                className={location.pathname.startsWith("/landlord") ? "active" : ""}
+                className={
+                  location.pathname.startsWith("/landlord") ? "active" : ""
+                }
               >
                 Dashboard
               </NavLink>
-              <NavLink to="/landlord/add-room" className={isActive("/landlord/add-room")}>
+              <NavLink
+                to="/landlord/add-room"
+                className={isActive("/landlord/add-room")}
+              >
                 Add Room
               </NavLink>
             </>
@@ -314,7 +327,9 @@ const Header = () => {
           {user && userType === "tenant" && (
             <NavLink
               to="/tenant/dashboard"
-              className={location.pathname.startsWith("/tenant") ? "active" : ""}
+              className={
+                location.pathname.startsWith("/tenant") ? "active" : ""
+              }
             >
               Dashboard
             </NavLink>
@@ -324,13 +339,21 @@ const Header = () => {
         <NavActions>
           {!user ? (
             <>
-              <Button to="/login" className="outline">Login</Button>
-              <Button to="/register" className="primary">Sign Up</Button>
+              <Button to="/login" className="outline">
+                Login
+              </Button>
+              <Button to="/register" className="primary">
+                Sign Up
+              </Button>
             </>
           ) : (
             <>
-              <Button to="/profile" className="outline">Profile</Button>
-              <Button to="/logout" className="outline">Logout</Button>
+              <Button to="/profile" className="outline">
+                Profile
+              </Button>
+              <Button to="/logout" className="outline">
+                Logout
+              </Button>
             </>
           )}
         </NavActions>
@@ -350,13 +373,25 @@ const Header = () => {
             <MobileNavLink to="/" className={isActive("/")} onClick={closeMenu}>
               Home
             </MobileNavLink>
-            <MobileNavLink to="/browse" className={isActive("/browse")} onClick={closeMenu}>
+            <MobileNavLink
+              to="/browse"
+              className={isActive("/browse")}
+              onClick={closeMenu}
+            >
               Browse Rooms
             </MobileNavLink>
-            <MobileNavLink to="/about" className={isActive("/about")} onClick={closeMenu}>
+            <MobileNavLink
+              to="/about"
+              className={isActive("/about")}
+              onClick={closeMenu}
+            >
               About
             </MobileNavLink>
-            <MobileNavLink to="/contact" className={isActive("/contact")} onClick={closeMenu}>
+            <MobileNavLink
+              to="/contact"
+              className={isActive("/contact")}
+              onClick={closeMenu}
+            >
               Contact
             </MobileNavLink>
 
@@ -364,7 +399,9 @@ const Header = () => {
               <>
                 <MobileNavLink
                   to="/landlord/dashboard"
-                  className={location.pathname.startsWith("/landlord") ? "active" : ""}
+                  className={
+                    location.pathname.startsWith("/landlord") ? "active" : ""
+                  }
                   onClick={closeMenu}
                 >
                   Dashboard
@@ -382,7 +419,9 @@ const Header = () => {
             {user && userType === "tenant" && (
               <MobileNavLink
                 to="/tenant/dashboard"
-                className={location.pathname.startsWith("/tenant") ? "active" : ""}
+                className={
+                  location.pathname.startsWith("/tenant") ? "active" : ""
+                }
                 onClick={closeMenu}
               >
                 Dashboard
@@ -393,19 +432,35 @@ const Header = () => {
           <MobileActions>
             {!user ? (
               <>
-                <MobileButton to="/login" className="outline" onClick={closeMenu}>
+                <MobileButton
+                  to="/login"
+                  className="outline"
+                  onClick={closeMenu}
+                >
                   Login
                 </MobileButton>
-                <MobileButton to="/register" className="primary" onClick={closeMenu}>
+                <MobileButton
+                  to="/register"
+                  className="primary"
+                  onClick={closeMenu}
+                >
                   Sign Up
                 </MobileButton>
               </>
             ) : (
               <>
-                <MobileButton to="/profile" className="outline" onClick={closeMenu}>
+                <MobileButton
+                  to="/profile"
+                  className="outline"
+                  onClick={closeMenu}
+                >
                   Profile
                 </MobileButton>
-                <MobileButton to="/logout" className="outline" onClick={closeMenu}>
+                <MobileButton
+                  to="/logout"
+                  className="outline"
+                  onClick={closeMenu}
+                >
                   Logout
                 </MobileButton>
               </>
