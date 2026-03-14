@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
+    strictPort: true, // fail if port 3000 is unavailable
     open: true, // automatically open browser
     host: true, // allow external connections
     allowedHosts: ["fyp.santoshbhandari.info.np"], // allow Cloudflare tunnel host

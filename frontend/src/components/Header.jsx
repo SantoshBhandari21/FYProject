@@ -287,7 +287,6 @@ const Header = () => {
     <HeaderWrapper>
       <HeaderContainer>
         <Logo to="/">
-          <LogoIcon></LogoIcon>
           <LogoText>myRentals</LogoText>
         </Logo>
 

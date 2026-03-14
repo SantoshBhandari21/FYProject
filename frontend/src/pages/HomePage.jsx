@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import styled from "styled-components";
+import { MdSearch, MdCheckCircle, MdCreditCard, MdStar } from "react-icons/md";
 
 const Container = styled.div`
   width: 100%;
@@ -30,17 +31,20 @@ const Section = styled.section`
 
 /* HERO */
 const Hero = styled(Section)`
-  background: linear-gradient(135deg, #d3daebff 0%, #bec8d6ff 100%);
+  background:
+    linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.4) 100%),
+    url("https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&q=80")
+      center/cover no-repeat;
   color: white;
   position: relative;
   overflow: hidden;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><pattern id='grid' width='10' height='10' patternUnits='userSpaceOnUse'><path d='M 10 0 L 0 0 0 10' fill='none' stroke='rgba(255,255,255,0.1)' stroke-width='1'/></pattern></defs><rect width='100' height='100' fill='url(%23grid)' /></svg>");
-    opacity: 0.3;
+  @media (max-width: 768px) {
+    min-height: 500px;
   }
 `;
 
@@ -57,6 +61,7 @@ const H1 = styled.h1`
   font-weight: 700;
   margin: 0 0 24px;
   line-height: 1.2;
+  color: white;
 
   @media (max-width: 768px) {
     font-size: 32px;
@@ -69,6 +74,7 @@ const HeroText = styled.p`
   margin: 0 0 48px;
   opacity: 0.95;
   line-height: 1.6;
+  color: white;
 
   @media (max-width: 768px) {
     font-size: 16px;
@@ -131,11 +137,14 @@ const Button = styled.button`
   cursor: pointer;
   transition: 0.2s ease;
   white-space: nowrap;
+  text-decoration: none;
 
   &:hover {
     background: #1e293b;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    color: white;
+    text-decoration: none;
   }
 
   @media (max-width: 768px) {
@@ -152,17 +161,19 @@ const LinkRow = styled.div`
 
 const OutlineLink = styled(Link)`
   padding: 12px 24px;
-  background: transparent;
+  background: #1d4ed8;
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid #1d4ed8;
   border-radius: 8px;
   text-decoration: none;
   font-weight: 600;
   transition: 0.2s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: white;
+    background: #1e293b;
+    border-color: #1e293b;
+    text-decoration: none;
+    color: white;
   }
 
   @media (max-width: 768px) {
@@ -221,6 +232,9 @@ const Card = styled.div`
 const Icon = styled.div`
   font-size: 44px;
   margin-bottom: 18px;
+  display: flex;
+  justify-content: center;
+  color: #2563eb;
 `;
 
 const CardTitle = styled.h3`
@@ -308,6 +322,10 @@ const CTAButton = styled(Link)`
   transition: 0.2s ease;
   text-align: center;
 
+  &:hover {
+    text-decoration: none;
+  }
+
   &.primary {
     background: #1d4ed8;
     color: white;
@@ -317,6 +335,8 @@ const CTAButton = styled(Link)`
       background: #1e293b;
       border-color: #1e293b;
       transform: translateY(-2px);
+      color: white;
+      text-decoration: none;
     }
   }
 
@@ -329,6 +349,7 @@ const CTAButton = styled(Link)`
       background: #2563eb;
       color: white;
       transform: translateY(-2px);
+      text-decoration: none;
     }
   }
 `;
@@ -342,7 +363,8 @@ const HomePage = () => {
     e.preventDefault();
     const searchParams = new URLSearchParams();
 
-    if (searchLocation.trim()) searchParams.append("location", searchLocation.trim());
+    if (searchLocation.trim())
+      searchParams.append("location", searchLocation.trim());
     if (maxPrice.trim()) searchParams.append("maxPrice", maxPrice.trim());
 
     navigate(`/browse?${searchParams.toString()}`);
@@ -391,25 +413,35 @@ const HomePage = () => {
 
           <Grid>
             <Card>
-              <Icon>🔍</Icon>
+              <Icon>
+                <MdSearch size={44} />
+              </Icon>
               <CardTitle>Easy Search</CardTitle>
-              <CardText>Find rooms that match your preferences with filters.</CardText>
+              <CardText>
+                Find rooms that match your preferences with filters.
+              </CardText>
             </Card>
 
             <Card>
-              <Icon>✅</Icon>
+              <Icon>
+                <MdCheckCircle size={44} />
+              </Icon>
               <CardTitle>Trusted Listings</CardTitle>
               <CardText>Verified room details from registered owners.</CardText>
             </Card>
 
             <Card>
-              <Icon>💳</Icon>
+              <Icon>
+                <MdCreditCard size={44} />
+              </Icon>
               <CardTitle>Payments & Invoices</CardTitle>
               <CardText>eSewa payments with auto-generated invoices.</CardText>
             </Card>
 
             <Card>
-              <Icon>⭐</Icon>
+              <Icon>
+                <MdStar size={44} />
+              </Icon>
               <CardTitle>Reviews</CardTitle>
               <CardText>Only booked tenants can leave room reviews.</CardText>
             </Card>
@@ -422,7 +454,9 @@ const HomePage = () => {
           <CTAGrid>
             <CTACard>
               <CTATitle>Looking for a Room?</CTATitle>
-              <CTAText>Browse available rooms and book instantly (minimum 1 month).</CTAText>
+              <CTAText>
+                Browse available rooms and book instantly (minimum 1 month).
+              </CTAText>
               <BtnRow>
                 <CTAButton to="/browse" className="primary">
                   Browse Rooms
@@ -435,7 +469,9 @@ const HomePage = () => {
 
             <CTACard>
               <CTATitle>Have a Room to Rent?</CTATitle>
-              <CTAText>Create an owner account and start listing rooms.</CTAText>
+              <CTAText>
+                Create an owner account and start listing rooms.
+              </CTAText>
               <BtnRow>
                 <CTAButton to="/register?type=owner" className="primary">
                   List Your Room
