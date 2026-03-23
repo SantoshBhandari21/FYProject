@@ -1,5 +1,5 @@
 // src/services/api.js
-const API_BASE =import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 // Helper function to get auth token
 const getToken = () => {
@@ -43,7 +43,19 @@ const apiCall = async (endpoint, options = {}) => {
   }
 
   if (!response.ok) {
+    // Handle token expiration
+    if (response.status === 401) {
+      console.warn("Token expired or invalid, redirecting to login");
+      // Clear stored auth data
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      // Redirect to login
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+    }
     const msg = data?.message || `Request failed (${response.status})`;
+    console.error(`API Error [${response.status}]:`, endpoint, msg, data);
     throw new Error(msg);
   }
 
@@ -110,6 +122,15 @@ export const roomsAPI = {
   },
 
   createRoom: async (roomData) => {
+    // If already FormData, use it directly
+    if (roomData instanceof FormData) {
+      return apiCall("/rooms", {
+        method: "POST",
+        body: roomData,
+      });
+    }
+
+    // Otherwise, create FormData from object
     const formData = new FormData();
 
     Object.keys(roomData).forEach((key) => {
@@ -117,7 +138,7 @@ export const roomsAPI = {
         formData.append(key, JSON.stringify(roomData[key]));
       } else if (key === "mainImage" && roomData[key]) {
         formData.append(key, roomData[key]);
-      } else {
+      } else if (roomData[key] !== null && roomData[key] !== undefined) {
         formData.append(key, roomData[key]);
       }
     });
@@ -133,6 +154,15 @@ export const roomsAPI = {
   },
 
   updateRoom: async (id, roomData) => {
+    // If already FormData, use it directly
+    if (roomData instanceof FormData) {
+      return apiCall(`/rooms/${id}`, {
+        method: "PUT",
+        body: roomData,
+      });
+    }
+
+    // Otherwise, create FormData from object
     const formData = new FormData();
 
     Object.keys(roomData).forEach((key) => {
@@ -140,7 +170,7 @@ export const roomsAPI = {
         formData.append(key, JSON.stringify(roomData[key]));
       } else if (key === "mainImage" && roomData[key]) {
         formData.append(key, roomData[key]);
-      } else {
+      } else if (roomData[key] !== null && roomData[key] !== undefined) {
         formData.append(key, roomData[key]);
       }
     });
@@ -290,7 +320,9 @@ export const usersAPI = {
     });
 
     const queryString = queryParams.toString();
-    return apiCall(`/admin/bookings/all${queryString ? `?${queryString}` : ""}`);
+    return apiCall(
+      `/admin/bookings/all${queryString ? `?${queryString}` : ""}`,
+    );
   },
 };
 
@@ -314,6 +346,9 @@ export const hasRole = (role) => {
   const user = getStoredUser();
   return user && user.role === role;
 };
+
+// Export roomAPI as alias for roomsAPI
+export const roomAPI = roomsAPI;
 
 export default {
   auth: authAPI,

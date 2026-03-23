@@ -22,10 +22,10 @@ const Page = styled.div`
 
 const Section = styled.section`
   width: 100%;
-  padding: ${(p) => p.pad || "80px 0"};
+  padding: ${(p) => p.$pad || "80px 0"};
 
   @media (max-width: 768px) {
-    padding: ${(p) => p.padMobile || "60px 0"};
+    padding: ${(p) => p.$padMobile || "60px 0"};
   }
 `;
 
@@ -372,7 +372,7 @@ const HomePage = () => {
 
   return (
     <Page>
-      <Hero pad="80px 0" padMobile="60px 0">
+      <Hero $pad="80px 0" $padMobile="60px 0">
         <Container>
           <HeroContent>
             <H1>Find Your Perfect Room</H1>

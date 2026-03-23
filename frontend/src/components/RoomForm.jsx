@@ -1,0 +1,351 @@
+import React, { useState, useEffect } from "react";
+import "../styles/RoomForm.css";
+
+const RoomForm = ({ room, onSubmit, onClose }) => {
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    address: "",
+    location: "",
+    price: "",
+    bedrooms: "",
+    bathrooms: "",
+    amenities: [],
+  });
+
+  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const amenitiesOptions = [
+    "WiFi",
+    "Air Conditioning",
+    "Kitchen",
+    "Parking",
+    "Garden",
+    "Balcony",
+    "Gym",
+    "Security",
+    "Pet Friendly",
+    "Heating",
+    "Laundry",
+    "Dishwasher",
+  ];
+
+  useEffect(() => {
+    if (room) {
+      setFormData({
+        title: room.title || "",
+        description: room.description || "",
+        address: room.address || "",
+        location: room.location || "",
+        price: room.price || "",
+        bedrooms: room.bedrooms || "",
+        bathrooms: room.bathrooms || "",
+        amenities: room.amenities || [],
+      });
+      if (room.main_image) {
+        setImagePreview(room.main_image);
+      }
+    }
+  }, [room]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]:
+        name === "price" || name === "area" ? parseFloat(value) || "" : value,
+    }));
+  };
+
+  const handleNumberChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: parseInt(value) || "",
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const toggleAmenity = (amenity) => {
+    setFormData((prev) => ({
+      ...prev,
+      amenities: prev.amenities.includes(amenity)
+        ? prev.amenities.filter((a) => a !== amenity)
+        : [...prev.amenities, amenity],
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    // Validation
+    if (
+      !formData.title ||
+      !formData.address ||
+      !formData.location ||
+      !formData.price ||
+      !formData.bedrooms ||
+      !formData.bathrooms
+    ) {
+      setError("Please fill in all required fields");
+      return;
+    }
+
+    if (
+      formData.price <= 0 ||
+      formData.bedrooms <= 0 ||
+      formData.bathrooms <= 0
+    ) {
+      setError("Price, bedrooms, and bathrooms must be greater than 0");
+      return;
+    }
+
+    if (!room && !imageFile) {
+      setError("Please upload a room image");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Create FormData for multipart/form-data
+      const submitData = new FormData();
+
+      // Append all form fields
+      submitData.append("title", String(formData.title).trim());
+      submitData.append("description", String(formData.description).trim());
+      submitData.append("address", String(formData.address).trim());
+      submitData.append("location", String(formData.location).trim());
+      submitData.append("price", parseFloat(formData.price));
+      submitData.append("bedrooms", parseInt(formData.bedrooms));
+      submitData.append("bathrooms", parseInt(formData.bathrooms));
+      submitData.append("amenities", JSON.stringify(formData.amenities));
+
+      if (imageFile) {
+        submitData.append("mainImage", imageFile);
+      }
+
+      // Debug: Log what we're sending
+      console.log("Submitting room data:", {
+        title: formData.title,
+        description: formData.description,
+        address: formData.address,
+        location: formData.location,
+        price: formData.price,
+        bedrooms: formData.bedrooms,
+        bathrooms: formData.bathrooms,
+        amenities: formData.amenities,
+        hasImage: !!imageFile,
+      });
+
+      await onSubmit(submitData);
+    } catch (err) {
+      setError(err.message || "Failed to save room");
+      console.error("Form submit error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        className="modal-content room-form-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header">
+          <h2>{room ? "Edit Room" : "Add New Room"}</h2>
+          <button className="close-btn" onClick={onClose}>
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="room-form">
+          {error && <div className="form-error">{error}</div>}
+
+          {/* Image Upload Section */}
+          <div className="form-section">
+            <h3>Room Photo</h3>
+            <div className="image-upload">
+              <div className="image-preview">
+                {imagePreview ? (
+                  <img src={imagePreview} alt="Room preview" />
+                ) : (
+                  <div className="placeholder">No image selected</div>
+                )}
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                id="imageInput"
+                style={{ display: "none" }}
+              />
+              <label htmlFor="imageInput" className="upload-label">
+                {imagePreview ? "Change Photo" : "Upload Photo"}
+              </label>
+            </div>
+          </div>
+
+          {/* Basic Information */}
+          <div className="form-section">
+            <h3>Basic Information</h3>
+            <div className="form-group">
+              <label>
+                Room Title <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="e.g., Cozy Studio in Downtown"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Description</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Describe your room, its features, and what makes it special..."
+                rows="4"
+              />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>
+                  Monthly Rent <span className="required">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  placeholder="0"
+                  step="1"
+                  min="0"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Location */}
+          <div className="form-section">
+            <h3>Location</h3>
+            <div className="form-group">
+              <label>
+                Address <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                placeholder="e.g., 123 Main Street, Apt 4B"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>
+                City/Location <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="e.g., New York, Manhattan"
+              />
+            </div>
+          </div>
+
+          {/* Room Details */}
+          <div className="form-section">
+            <h3>Room Details</h3>
+            <div className="form-row">
+              <div className="form-group">
+                <label>
+                  Bedrooms <span className="required">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="bedrooms"
+                  value={formData.bedrooms}
+                  onChange={handleNumberChange}
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Bathrooms <span className="required">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="bathrooms"
+                  value={formData.bathrooms}
+                  onChange={handleNumberChange}
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Amenities */}
+          <div className="form-section">
+            <h3>Amenities</h3>
+            <div className="amenities-grid">
+              {amenitiesOptions.map((amenity) => (
+                <label key={amenity} className="amenity-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={formData.amenities.includes(amenity)}
+                    onChange={() => toggleAmenity(amenity)}
+                  />
+                  {amenity}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Form Actions */}
+          <div className="form-actions">
+            <button
+              type="button"
+              className="btn-cancel"
+              onClick={onClose}
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button type="submit" className="btn-submit" disabled={loading}>
+              {loading ? "Saving..." : room ? "Update Room" : "Add Room"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default RoomForm;
