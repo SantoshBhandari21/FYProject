@@ -1,7 +1,8 @@
 // src/components/Header.jsx
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { getStoredUser } from "../services/api";
 
 const HeaderWrapper = styled.header`
   width: 100%;
@@ -15,15 +16,11 @@ const HeaderWrapper = styled.header`
 
 const HeaderContainer = styled.div`
   width: 100%;
-  max-width: 100%;
-  margin: 0;
   padding: 0 24px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 72px;
-
   @media (max-width: 768px) {
     padding: 0 16px;
     height: 64px;
@@ -34,43 +31,22 @@ const Logo = styled(Link)`
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: #1e293b;
-  font-weight: 600;
+  color: #2563eb;
+  font-weight: 700;
   font-size: 24px;
   transition: color 0.2s ease;
-
   &:hover {
-    color: #2563eb;
+    color: #1d4ed8;
   }
-
-  @media (max-width: 768px) {
+  @media (max-width: 480px) {
     font-size: 20px;
   }
 `;
 
-const LogoIcon = styled.span`
-  font-size: 28px;
-  margin-right: 8px;
-
-  @media (max-width: 768px) {
-    font-size: 24px;
-    margin-right: 6px;
-  }
-`;
-
-const LogoText = styled.span`
-  color: #2563eb;
-
-  @media (max-width: 480px) {
-    display: none;
-  }
-`;
-
-const DesktopNav = styled.nav`
+const Nav = styled.nav`
   display: flex;
   align-items: center;
   gap: 18px;
-
   @media (max-width: 768px) {
     display: none;
   }
@@ -84,12 +60,10 @@ const NavLink = styled(Link)`
   padding: 8px 14px;
   border-radius: 6px;
   transition: all 0.2s ease;
-
   &:hover {
     color: #2563eb;
     background-color: #f8fafc;
   }
-
   &.active {
     color: #2563eb;
     background-color: #eff6ff;
@@ -100,13 +74,12 @@ const NavActions = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-
   @media (max-width: 768px) {
     display: none;
   }
 `;
 
-const Button = styled(Link)`
+const Btn = styled(Link)`
   padding: 10px 20px;
   border-radius: 6px;
   font-weight: 500;
@@ -114,61 +87,54 @@ const Button = styled(Link)`
   text-decoration: none;
   transition: all 0.2s ease;
   cursor: pointer;
-
-  &.outline {
+  ${({ $outline }) =>
+    $outline
+      ? `
     background: transparent;
     color: #2563eb;
     border: 1px solid #2563eb;
-
     &:hover {
       background: #2563eb;
       color: white;
       transform: translateY(-1px);
     }
-  }
-
-  &.primary {
+  `
+      : `
     background: #2563eb;
     color: white;
     border: 1px solid #2563eb;
-
     &:hover {
       background: #1d4ed8;
       border-color: #1d4ed8;
       transform: translateY(-1px);
     }
-  }
+  `}
 `;
 
-const MobileMenuButton = styled.button`
+const MobileMenuBtn = styled.button`
   display: none;
   background: none;
   border: none;
   padding: 8px;
   cursor: pointer;
-
   @media (max-width: 768px) {
     display: block;
   }
 `;
 
-const HamburgerIcon = styled.div`
+const Hamburger = styled.div`
   width: 24px;
   height: 20px;
-  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-
   span {
-    display: block;
     height: 2px;
     width: 100%;
     background-color: #1e293b;
     border-radius: 2px;
     transition: all 0.3s ease;
   }
-
   &.open span:nth-child(1) {
     transform: translateY(9px) rotate(45deg);
   }
@@ -192,28 +158,22 @@ const MobileMenu = styled.div`
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease;
-
   &.open {
     max-height: 520px;
   }
-
   @media (max-width: 768px) {
     display: block;
   }
 `;
 
-const MobileMenuContent = styled.div`
-  padding: 20px 24px;
-`;
-
-const MobileNavLinks = styled.div`
+const MobileNav = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 20px;
+  padding: 20px 24px 0;
 `;
 
-const MobileNavLink = styled(Link)`
+const MobileLink = styled(Link)`
   padding: 12px 16px;
   border-radius: 6px;
   color: #64748b;
@@ -221,12 +181,10 @@ const MobileNavLink = styled(Link)`
   font-weight: 500;
   font-size: 15px;
   transition: all 0.2s ease;
-
   &:hover {
     background-color: #f8fafc;
     color: #2563eb;
   }
-
   &.active {
     background-color: #2563eb;
     color: white;
@@ -237,9 +195,11 @@ const MobileActions = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding: 20px 24px;
+  border-top: 1px solid #e2e8f0;
 `;
 
-const MobileButton = styled(Link)`
+const MobileBtn = styled(Link)`
   padding: 12px 20px;
   border-radius: 6px;
   font-weight: 500;
@@ -247,225 +207,256 @@ const MobileButton = styled(Link)`
   text-decoration: none;
   transition: all 0.2s ease;
   text-align: center;
-
-  &.outline {
+  ${({ $outline }) =>
+    $outline
+      ? `
     background: transparent;
     color: #2563eb;
     border: 1px solid #2563eb;
-
-    &:hover {
-      background: #2563eb;
-      color: white;
-    }
-  }
-
-  &.primary {
+    &:hover { background: #2563eb; color: white; }
+  `
+      : `
     background: #2563eb;
     color: white;
     border: 1px solid #2563eb;
+    &:hover { background: #1d4ed8; border-color: #1d4ed8; }
+  `}
+`;
 
-    &:hover {
-      background: #1d4ed8;
-      border-color: #1d4ed8;
-    }
+const LogoutBtn = styled.button`
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  background: transparent;
+  color: #2563eb;
+  border: 1px solid #2563eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  &:hover {
+    background: #2563eb;
+    color: white;
+    transform: translateY(-1px);
   }
 `;
 
+const MobileLogoutBtn = styled.button`
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  background: transparent;
+  color: #2563eb;
+  border: 1px solid #2563eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  width: 100%;
+  &:hover {
+    background: #2563eb;
+    color: white;
+  }
+`;
+
+const ProfileIcon = styled(Link)`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  &:hover {
+    background: #1d4ed8;
+    transform: scale(1.1);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const MobileProfileIcon = styled(Link)`
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 6px;
+  background: transparent;
+  color: #2563eb;
+  border: 1px solid #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  &:hover {
+    background: #2563eb;
+    color: white;
+  }
+`;
+
+const NAV_LINKS = [
+  { to: "/", label: "Home" },
+  { to: "/browse", label: "Browse Rooms" },
+  { to: "/about", label: "About" },
+  { to: "/contact", label: "Contact" },
+];
+
 const Header = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const location = useLocation();
+  const [open, setOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
 
-  // Keep placeholders (your core logic stays same)
-  const user = null;
-  const userType = null; // 'landlord' or 'tenant'
+  // Check user on mount and pathname change
+  useEffect(() => {
+    const currentUser = getStoredUser();
+    setUser(currentUser);
+  }, [pathname]);
 
-  const isActive = (path) => (location.pathname === path ? "active" : "");
+  // Listen to storage changes
+  useEffect(() => {
+    const handleStorageChange = () => setUser(getStoredUser());
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
-  const closeMenu = () => setIsMobileMenuOpen(false);
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+    setOpen(false);
+    navigate("/login");
+  };
+
+  const isActive = (path) => (pathname === path ? "active" : "");
+  const isMobile = () => setOpen(false);
+  const profileChar = user?.full_name?.[0]?.toUpperCase() || "U";
 
   return (
     <HeaderWrapper>
       <HeaderContainer>
-        <Logo to="/">
-          <LogoText>myRentals</LogoText>
-        </Logo>
+        <Logo to="/">myRentals</Logo>
 
-        <DesktopNav>
-          <NavLink to="/" className={isActive("/")}>
-            Home
-          </NavLink>
-          <NavLink to="/browse" className={isActive("/browse")}>
-            Browse Rooms
-          </NavLink>
-          <NavLink to="/about" className={isActive("/about")}>
-            About
-          </NavLink>
-          <NavLink to="/contact" className={isActive("/contact")}>
-            Contact
-          </NavLink>
-
-          {user && userType === "landlord" && (
-            <>
-              <NavLink
-                to="/landlord/dashboard"
-                className={
-                  location.pathname.startsWith("/landlord") ? "active" : ""
-                }
-              >
-                Dashboard
-              </NavLink>
-              <NavLink
-                to="/landlord/add-room"
-                className={isActive("/landlord/add-room")}
-              >
-                Add Room
-              </NavLink>
-            </>
-          )}
-
-          {user && userType === "tenant" && (
-            <NavLink
-              to="/tenant/dashboard"
-              className={
-                location.pathname.startsWith("/tenant") ? "active" : ""
-              }
-            >
-              Dashboard
+        <Nav>
+          {NAV_LINKS.map(({ to, label }) => (
+            <NavLink key={to} to={to} className={isActive(to)}>
+              {label}
             </NavLink>
-          )}
-        </DesktopNav>
+          ))}
+        </Nav>
 
         <NavActions>
           {!user ? (
             <>
-              <Button to="/login" className="outline">
+              <Btn as={Link} to="/login" $outline>
                 Login
-              </Button>
-              <Button to="/register" className="primary">
+              </Btn>
+              <Btn as={Link} to="/register">
                 Sign Up
-              </Button>
+              </Btn>
             </>
           ) : (
             <>
-              <Button to="/profile" className="outline">
-                Profile
-              </Button>
-              <Button to="/logout" className="outline">
-                Logout
-              </Button>
+              <ProfileIcon to="/profile" title="Profile">
+                {user?.profile_photo ? (
+                  <img
+                    src={
+                      user.profile_photo.startsWith("http")
+                        ? user.profile_photo
+                        : `http://localhost:5000${user.profile_photo}`
+                    }
+                    alt="Profile"
+                  />
+                ) : (
+                  profileChar
+                )}
+              </ProfileIcon>
+              <LogoutBtn onClick={handleLogout}>Logout</LogoutBtn>
             </>
           )}
         </NavActions>
 
-        <MobileMenuButton onClick={() => setIsMobileMenuOpen((s) => !s)}>
-          <HamburgerIcon className={isMobileMenuOpen ? "open" : ""}>
+        <MobileMenuBtn onClick={() => setOpen((s) => !s)}>
+          <Hamburger className={open ? "open" : ""}>
             <span />
             <span />
             <span />
-          </HamburgerIcon>
-        </MobileMenuButton>
+          </Hamburger>
+        </MobileMenuBtn>
       </HeaderContainer>
 
-      <MobileMenu className={isMobileMenuOpen ? "open" : ""}>
-        <MobileMenuContent>
-          <MobileNavLinks>
-            <MobileNavLink to="/" className={isActive("/")} onClick={closeMenu}>
-              Home
-            </MobileNavLink>
-            <MobileNavLink
-              to="/browse"
-              className={isActive("/browse")}
-              onClick={closeMenu}
+      <MobileMenu className={open ? "open" : ""}>
+        <MobileNav>
+          {NAV_LINKS.map(({ to, label }) => (
+            <MobileLink
+              key={to}
+              to={to}
+              className={isActive(to)}
+              onClick={isMobile}
             >
-              Browse Rooms
-            </MobileNavLink>
-            <MobileNavLink
-              to="/about"
-              className={isActive("/about")}
-              onClick={closeMenu}
-            >
-              About
-            </MobileNavLink>
-            <MobileNavLink
-              to="/contact"
-              className={isActive("/contact")}
-              onClick={closeMenu}
-            >
-              Contact
-            </MobileNavLink>
+              {label}
+            </MobileLink>
+          ))}
+        </MobileNav>
 
-            {user && userType === "landlord" && (
-              <>
-                <MobileNavLink
-                  to="/landlord/dashboard"
-                  className={
-                    location.pathname.startsWith("/landlord") ? "active" : ""
-                  }
-                  onClick={closeMenu}
-                >
-                  Dashboard
-                </MobileNavLink>
-                <MobileNavLink
-                  to="/landlord/add-room"
-                  className={isActive("/landlord/add-room")}
-                  onClick={closeMenu}
-                >
-                  Add Room
-                </MobileNavLink>
-              </>
-            )}
-
-            {user && userType === "tenant" && (
-              <MobileNavLink
-                to="/tenant/dashboard"
-                className={
-                  location.pathname.startsWith("/tenant") ? "active" : ""
-                }
-                onClick={closeMenu}
+        <MobileActions>
+          {!user ? (
+            <>
+              <MobileBtn as={Link} to="/login" $outline onClick={isMobile}>
+                Login
+              </MobileBtn>
+              <MobileBtn as={Link} to="/register" onClick={isMobile}>
+                Sign Up
+              </MobileBtn>
+            </>
+          ) : (
+            <>
+              <MobileProfileIcon to="/profile" onClick={isMobile}>
+                {user?.profile_photo ? (
+                  <>
+                    <img
+                      src={
+                        user.profile_photo.startsWith("http")
+                          ? user.profile_photo
+                          : `http://localhost:5000${user.profile_photo}`
+                      }
+                      alt="Profile"
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                      }}
+                    />
+                    {user?.full_name || "Profile"}
+                  </>
+                ) : (
+                  <>👤 {user?.full_name || "Profile"}</>
+                )}
+              </MobileProfileIcon>
+              <MobileLogoutBtn
+                onClick={() => {
+                  handleLogout();
+                  isMobile();
+                }}
               >
-                Dashboard
-              </MobileNavLink>
-            )}
-          </MobileNavLinks>
-
-          <MobileActions>
-            {!user ? (
-              <>
-                <MobileButton
-                  to="/login"
-                  className="outline"
-                  onClick={closeMenu}
-                >
-                  Login
-                </MobileButton>
-                <MobileButton
-                  to="/register"
-                  className="primary"
-                  onClick={closeMenu}
-                >
-                  Sign Up
-                </MobileButton>
-              </>
-            ) : (
-              <>
-                <MobileButton
-                  to="/profile"
-                  className="outline"
-                  onClick={closeMenu}
-                >
-                  Profile
-                </MobileButton>
-                <MobileButton
-                  to="/logout"
-                  className="outline"
-                  onClick={closeMenu}
-                >
-                  Logout
-                </MobileButton>
-              </>
-            )}
-          </MobileActions>
-        </MobileMenuContent>
+                Logout
+              </MobileLogoutBtn>
+            </>
+          )}
+        </MobileActions>
       </MobileMenu>
     </HeaderWrapper>
   );

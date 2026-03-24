@@ -1,5 +1,5 @@
 {
-  "name": "rental-backend",
+  "name": "backend",
   "version": "1.0.0",
   "description": "Backend API for Rental Room Management System",
   "main": "server.js",

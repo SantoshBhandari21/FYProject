@@ -10,7 +10,11 @@ const {
   getMe,
   updatePassword,
   updateProfile,
+  updateProfilePhoto,
 } = require("../controllers/authController");
+
+// Import upload middleware
+const { uploadImage } = require("../middleware/upload");
 
 // Register validation (matches frontend)
 const registerValidation = [
@@ -36,5 +40,6 @@ router.post("/login", loginValidation, login);
 router.get("/me", authenticate, getMe);
 router.put("/password", authenticate, updatePassword);
 router.put("/profile", authenticate, updateProfile);
+router.post("/profile-photo", authenticate, uploadImage, updateProfilePhoto);
 
 module.exports = router;

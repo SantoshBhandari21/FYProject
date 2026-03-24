@@ -19,21 +19,38 @@ const createRoom = async (req, res) => {
       amenities,
     } = req.body;
 
-    if (
-      !title ||
-      !address ||
-      !location ||
-      !roomType ||
-      !price ||
-      !bedrooms ||
-      !bathrooms ||
-      !area
-    ) {
-      return res.status(400).json({ message: "Please provide all required fields" });
+    // Validate required fields
+    const missingFields = [];
+    if (!title) missingFields.push("title");
+    if (!address) missingFields.push("address");
+    if (!location) missingFields.push("location");
+    if (!price) missingFields.push("price");
+    if (!bedrooms) missingFields.push("bedrooms");
+    if (!bathrooms) missingFields.push("bathrooms");
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        message: `Missing required fields: ${missingFields.join(", ")}`,
+      });
     }
 
-    const amenitiesJson = amenities ? JSON.stringify(amenities) : null;
+    // Parse amenities — could arrive as a JSON string or already an array
+    let amenitiesJson = null;
+    if (amenities) {
+      try {
+        const parsed =
+          typeof amenities === "string" ? JSON.parse(amenities) : amenities;
+        amenitiesJson = JSON.stringify(parsed);
+      } catch {
+        amenitiesJson = JSON.stringify([]);
+      }
+    }
+
     const mainImage = req.file ? `/uploads/${req.file.filename}` : null;
+
+    // Use sensible defaults for optional numeric fields
+    const finalRoomType = roomType || "Single";
+    const finalArea = area ? parseFloat(area) : 0;
 
     const result = await runQuery(
       `INSERT INTO rooms 
@@ -46,22 +63,27 @@ const createRoom = async (req, res) => {
         description || null,
         address,
         location,
-        roomType,
-        price,
-        bedrooms,
-        bathrooms,
-        area,
+        finalRoomType,
+        parseFloat(price),
+        parseInt(bedrooms),
+        parseInt(bathrooms),
+        finalArea,
         amenitiesJson,
         mainImage,
-      ]
+      ],
     );
 
     const room = await getOne("SELECT * FROM rooms WHERE id = ?", [result.id]);
 
+    // Parse amenities back before returning
+    if (room && room.amenities) {
+      room.amenities = JSON.parse(room.amenities);
+    }
+
     return res.status(201).json({ message: "Room created successfully", room });
   } catch (error) {
     console.error("Create room error:", error);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error: " + error.message });
   }
 };
 
@@ -115,7 +137,8 @@ const getRooms = async (req, res) => {
       params.push(parseInt(bedrooms));
     }
     if (search) {
-      query += " AND (r.title LIKE ? OR r.description LIKE ? OR r.address LIKE ?)";
+      query +=
+        " AND (r.title LIKE ? OR r.description LIKE ? OR r.address LIKE ?)";
       params.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
@@ -130,7 +153,8 @@ const getRooms = async (req, res) => {
 
     const rooms = await getAll(query, params);
 
-    let countQuery = "SELECT COUNT(*) as total FROM rooms WHERE is_available = 1";
+    let countQuery =
+      "SELECT COUNT(*) as total FROM rooms WHERE is_available = 1";
     const countParams = [];
 
     if (location) {
@@ -154,7 +178,8 @@ const getRooms = async (req, res) => {
       countParams.push(parseInt(bedrooms));
     }
     if (search) {
-      countQuery += " AND (title LIKE ? OR description LIKE ? OR address LIKE ?)";
+      countQuery +=
+        " AND (title LIKE ? OR description LIKE ? OR address LIKE ?)";
       countParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
@@ -192,7 +217,7 @@ const getRoomById = async (req, res) => {
        FROM rooms r
        LEFT JOIN users u ON r.owner_id = u.id
        WHERE r.id = ?`,
-      [req.params.id]
+      [req.params.id],
     );
 
     if (!room) return res.status(404).json({ message: "Room not found" });
@@ -207,7 +232,7 @@ const getRoomById = async (req, res) => {
        LEFT JOIN users u ON rev.client_id = u.id
        WHERE rev.room_id = ?
        ORDER BY rev.created_at DESC`,
-      [req.params.id]
+      [req.params.id],
     );
 
     room.amenities = room.amenities ? JSON.parse(room.amenities) : [];
@@ -234,7 +259,7 @@ const getMyRooms = async (req, res) => {
        FROM rooms r
        WHERE r.owner_id = ?
        ORDER BY r.created_at DESC`,
-      [req.user.id]
+      [req.user.id],
     );
 
     const roomsWithParsedData = rooms.map((room) => ({
@@ -254,10 +279,10 @@ const getMyRooms = async (req, res) => {
 // @access  Private (Owner only - own rooms)
 const updateRoom = async (req, res) => {
   try {
-    const room = await getOne("SELECT * FROM rooms WHERE id = ? AND owner_id = ?", [
-      req.params.id,
-      req.user.id,
-    ]);
+    const room = await getOne(
+      "SELECT * FROM rooms WHERE id = ? AND owner_id = ?",
+      [req.params.id, req.user.id],
+    );
 
     if (!room) {
       return res.status(404).json({
@@ -282,30 +307,85 @@ const updateRoom = async (req, res) => {
     const updates = [];
     const values = [];
 
-    if (title) { updates.push("title = ?"); values.push(title); }
-    if (description !== undefined) { updates.push("description = ?"); values.push(description); }
-    if (address) { updates.push("address = ?"); values.push(address); }
-    if (location) { updates.push("location = ?"); values.push(location); }
-    if (roomType) { updates.push("room_type = ?"); values.push(roomType); }
-    if (price) { updates.push("price = ?"); values.push(parseFloat(price)); }
-    if (bedrooms) { updates.push("bedrooms = ?"); values.push(parseInt(bedrooms)); }
-    if (bathrooms) { updates.push("bathrooms = ?"); values.push(parseInt(bathrooms)); }
-    if (area) { updates.push("area = ?"); values.push(parseFloat(area)); }
-    if (amenities) { updates.push("amenities = ?"); values.push(JSON.stringify(amenities)); }
-    if (isAvailable !== undefined) { updates.push("is_available = ?"); values.push(isAvailable ? 1 : 0); }
-    if (req.file) { updates.push("main_image = ?"); values.push(`/uploads/${req.file.filename}`); }
+    if (title) {
+      updates.push("title = ?");
+      values.push(title);
+    }
+    if (description !== undefined) {
+      updates.push("description = ?");
+      values.push(description);
+    }
+    if (address) {
+      updates.push("address = ?");
+      values.push(address);
+    }
+    if (location) {
+      updates.push("location = ?");
+      values.push(location);
+    }
+    if (roomType) {
+      updates.push("room_type = ?");
+      values.push(roomType);
+    }
+    if (price) {
+      updates.push("price = ?");
+      values.push(parseFloat(price));
+    }
+    if (bedrooms) {
+      updates.push("bedrooms = ?");
+      values.push(parseInt(bedrooms));
+    }
+    if (bathrooms) {
+      updates.push("bathrooms = ?");
+      values.push(parseInt(bathrooms));
+    }
+    if (area) {
+      updates.push("area = ?");
+      values.push(parseFloat(area));
+    }
+    if (amenities) {
+      // Handle amenities whether it arrives as string or array
+      let amenitiesArray;
+      try {
+        amenitiesArray =
+          typeof amenities === "string" ? JSON.parse(amenities) : amenities;
+      } catch {
+        amenitiesArray = [];
+      }
+      updates.push("amenities = ?");
+      values.push(JSON.stringify(amenitiesArray));
+    }
+    if (isAvailable !== undefined) {
+      updates.push("is_available = ?");
+      values.push(isAvailable ? 1 : 0);
+    }
+    if (req.file) {
+      updates.push("main_image = ?");
+      values.push(`/uploads/${req.file.filename}`);
+    }
 
-    if (updates.length === 0) return res.status(400).json({ message: "No fields to update" });
+    if (updates.length === 0)
+      return res.status(400).json({ message: "No fields to update" });
 
     updates.push("updated_at = CURRENT_TIMESTAMP");
     values.push(req.params.id);
 
-    await runQuery(`UPDATE rooms SET ${updates.join(", ")} WHERE id = ?`, values);
+    await runQuery(
+      `UPDATE rooms SET ${updates.join(", ")} WHERE id = ?`,
+      values,
+    );
 
-    const updatedRoom = await getOne("SELECT * FROM rooms WHERE id = ?", [req.params.id]);
-    updatedRoom.amenities = updatedRoom.amenities ? JSON.parse(updatedRoom.amenities) : [];
+    const updatedRoom = await getOne("SELECT * FROM rooms WHERE id = ?", [
+      req.params.id,
+    ]);
+    updatedRoom.amenities = updatedRoom.amenities
+      ? JSON.parse(updatedRoom.amenities)
+      : [];
 
-    return res.json({ message: "Room updated successfully", room: updatedRoom });
+    return res.json({
+      message: "Room updated successfully",
+      room: updatedRoom,
+    });
   } catch (error) {
     console.error("Update room error:", error);
     return res.status(500).json({ message: "Server error" });
@@ -317,10 +397,10 @@ const updateRoom = async (req, res) => {
 // @access  Private (Owner only - own rooms)
 const deleteRoom = async (req, res) => {
   try {
-    const room = await getOne("SELECT * FROM rooms WHERE id = ? AND owner_id = ?", [
-      req.params.id,
-      req.user.id,
-    ]);
+    const room = await getOne(
+      "SELECT * FROM rooms WHERE id = ? AND owner_id = ?",
+      [req.params.id, req.user.id],
+    );
 
     if (!room) {
       return res.status(404).json({
@@ -331,11 +411,13 @@ const deleteRoom = async (req, res) => {
     const activeBooking = await getOne(
       `SELECT id FROM bookings 
        WHERE room_id = ? AND status IN ('pending', 'approved')`,
-      [req.params.id]
+      [req.params.id],
     );
 
     if (activeBooking) {
-      return res.status(400).json({ message: "Cannot delete room with active bookings" });
+      return res
+        .status(400)
+        .json({ message: "Cannot delete room with active bookings" });
     }
 
     await runQuery("DELETE FROM rooms WHERE id = ?", [req.params.id]);
@@ -346,18 +428,23 @@ const deleteRoom = async (req, res) => {
   }
 };
 
-// Favorites (unchanged)
+// @desc    Add room to favorites
+// @route   POST /api/rooms/:id/favorite
+// @access  Private (Client only)
 const addToFavorites = async (req, res) => {
   try {
-    const room = await getOne("SELECT id FROM rooms WHERE id = ?", [req.params.id]);
+    const room = await getOne("SELECT id FROM rooms WHERE id = ?", [
+      req.params.id,
+    ]);
     if (!room) return res.status(404).json({ message: "Room not found" });
 
     const existing = await getOne(
       "SELECT id FROM favorites WHERE client_id = ? AND room_id = ?",
-      [req.user.id, req.params.id]
+      [req.user.id, req.params.id],
     );
 
-    if (existing) return res.status(400).json({ message: "Room already in favorites" });
+    if (existing)
+      return res.status(400).json({ message: "Room already in favorites" });
 
     await runQuery("INSERT INTO favorites (client_id, room_id) VALUES (?, ?)", [
       req.user.id,
@@ -371,12 +458,15 @@ const addToFavorites = async (req, res) => {
   }
 };
 
+// @desc    Remove room from favorites
+// @route   DELETE /api/rooms/:id/favorite
+// @access  Private (Client only)
 const removeFromFavorites = async (req, res) => {
   try {
-    await runQuery("DELETE FROM favorites WHERE client_id = ? AND room_id = ?", [
-      req.user.id,
-      req.params.id,
-    ]);
+    await runQuery(
+      "DELETE FROM favorites WHERE client_id = ? AND room_id = ?",
+      [req.user.id, req.params.id],
+    );
     return res.json({ message: "Room removed from favorites" });
   } catch (error) {
     console.error("Remove from favorites error:", error);
@@ -384,6 +474,9 @@ const removeFromFavorites = async (req, res) => {
   }
 };
 
+// @desc    Get client's favorite rooms
+// @route   GET /api/rooms/user/favorites
+// @access  Private (Client only)
 const getFavorites = async (req, res) => {
   try {
     const favorites = await getAll(
@@ -395,7 +488,7 @@ const getFavorites = async (req, res) => {
        JOIN users u ON r.owner_id = u.id
        WHERE f.client_id = ?
        ORDER BY f.created_at DESC`,
-      [req.user.id]
+      [req.user.id],
     );
 
     const favoritesWithParsedData = favorites.map((room) => ({

@@ -136,7 +136,13 @@ const OwnerDashboard = () => {
             <div key={room.id} className="room-card">
               <div className="room-image">
                 <img
-                  src={room.main_image || "/placeholder.jpg"}
+                  src={
+                    room.main_image
+                      ? room.main_image.startsWith("http")
+                        ? room.main_image
+                        : `http://localhost:5000${room.main_image}`
+                      : "/placeholder.jpg"
+                  }
                   alt={room.title}
                   onError={(e) => (e.target.src = "/placeholder.jpg")}
                 />

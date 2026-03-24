@@ -19,13 +19,15 @@ db.run("PRAGMA foreign_keys = ON");
 
 // Initialize database tables
 const initDatabase = () => {
-  // ✅ USERS table (NO phone, NO address)
+  // ✅ USERS table
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       full_name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
+      bio TEXT,
+      profile_photo TEXT,
       role TEXT NOT NULL CHECK(role IN ('admin', 'owner', 'client')),
       is_verified INTEGER DEFAULT 0,
       is_active INTEGER DEFAULT 1,
@@ -116,7 +118,6 @@ const initDatabase = () => {
     )
   `);
 
-  // Messages/Contact table (still has phone if you want it)
   db.run(`
     CREATE TABLE IF NOT EXISTS messages (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

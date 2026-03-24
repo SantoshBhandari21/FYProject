@@ -635,13 +635,22 @@ const BrowseRooms = () => {
 
           <AmenityTags>
             {(() => {
-              const amenities = Array.isArray(room.amenities)
-                ? room.amenities
-                : typeof room.amenities === "string"
-                  ? JSON.parse(room.amenities).slice
-                    ? JSON.parse(room.amenities)
-                    : []
-                  : [];
+              let amenities = [];
+              try {
+                if (Array.isArray(room.amenities)) {
+                  amenities = room.amenities;
+                } else if (typeof room.amenities === "string") {
+                  amenities = JSON.parse(room.amenities);
+                }
+                // Ensure amenities is always an array
+                if (!Array.isArray(amenities)) {
+                  amenities = [];
+                }
+              } catch (e) {
+                console.error("Error parsing amenities:", e);
+                amenities = [];
+              }
+
               return (
                 <>
                   {amenities.slice(0, 4).map((a) => (

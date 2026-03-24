@@ -5,6 +5,7 @@ import styled from "styled-components";
 // Global styles + layout
 import GlobalStyles from "./styles/GlobalStyles";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 // Pages (based on your folder structure: src/pages/*.jsx)
 import HomePage from "./pages/HomePage";
@@ -18,6 +19,7 @@ import ContactPage from "./pages/ContactPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import ClientDashboard from "./pages/ClientDashboard";
+import ProfilePage from "./pages/ProfilePage";
 
 // Auth Context
 import { AuthProvider } from "./hooks/useAuth.jsx";
@@ -52,6 +54,7 @@ function App() {
               <Route path="/logout" element={<LogoutPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
 
               {/* Dashboards (must match LoginPage navigate paths) */}
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -70,6 +73,7 @@ function App() {
               />
             </Routes>
           </Main>
+          <Footer />
         </AppShell>
       </Router>
     </AuthProvider>

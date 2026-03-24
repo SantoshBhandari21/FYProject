@@ -97,6 +97,49 @@ export const authAPI = {
     });
   },
 
+  uploadProfilePhoto: async (formData) => {
+    const token = getToken();
+    const config = {
+      method: "POST",
+      headers: {},
+    };
+
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    config.body = formData;
+
+    const response = await fetch(`${API_BASE}/auth/profile-photo`, config);
+
+    let data = null;
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = null;
+    }
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
+      }
+      const msg = data?.message || `Upload failed (${response.status})`;
+      console.error(
+        `API Error [${response.status}]:`,
+        "/auth/profile-photo",
+        msg,
+        data,
+      );
+      throw new Error(msg);
+    }
+
+    return data;
+  },
+
   logout: () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");

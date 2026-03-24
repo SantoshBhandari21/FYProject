@@ -47,13 +47,13 @@ const register = async (req, res) => {
     const result = await runQuery(
       `INSERT INTO users (full_name, email, password, role)
        VALUES (?, ?, ?, ?)`,
-      [name, email, hashedPassword, role]
+      [name, email, hashedPassword, role],
     );
 
     const user = await getOne(
-      `SELECT id, full_name, email, role, is_verified, is_active, created_at
+      `SELECT id, full_name, email, bio, role, is_verified, is_active, created_at
        FROM users WHERE id = ?`,
-      [result.id]
+      [result.id],
     );
 
     const token = generateToken(user.id, user.role);
@@ -126,9 +126,9 @@ const login = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const user = await getOne(
-      `SELECT id, full_name, email, role, is_verified, is_active, created_at
+      `SELECT id, full_name, email, bio, role, is_verified, is_active, created_at
        FROM users WHERE id = ?`,
-      [req.user.id]
+      [req.user.id],
     );
 
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -168,7 +168,7 @@ const updatePassword = async (req, res) => {
 
     await runQuery(
       "UPDATE users SET password = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-      [hashedPassword, req.user.id]
+      [hashedPassword, req.user.id],
     );
 
     return res.json({ message: "Password updated successfully" });
@@ -181,25 +181,25 @@ const updatePassword = async (req, res) => {
 // ------------------------------
 // UPDATE PROFILE
 // PUT /api/auth/profile
-// Only fullName (since you removed phone/address)
+// Body expected: { fullName, bio }
 // ------------------------------
 const updateProfile = async (req, res) => {
   try {
-    const { fullName } = req.body;
+    const { fullName, bio } = req.body;
 
     if (!fullName) {
       return res.status(400).json({ message: "fullName is required" });
     }
 
     await runQuery(
-      "UPDATE users SET full_name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-      [fullName, req.user.id]
+      "UPDATE users SET full_name = ?, bio = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+      [fullName, bio || null, req.user.id],
     );
 
     const user = await getOne(
-      `SELECT id, full_name, email, role, is_verified, is_active, created_at
+      `SELECT id, full_name, email, bio, role, is_verified, is_active, created_at
        FROM users WHERE id = ?`,
-      [req.user.id]
+      [req.user.id],
     );
 
     return res.json({
@@ -212,10 +212,44 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// UPDATE PROFILE PHOTO
+// POST /api/auth/profile-photo
+// Multipart form data with file: { file }
+// ------------------------------
+const updateProfilePhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const photoPath = `/uploads/${req.file.filename}`;
+
+    await runQuery(
+      "UPDATE users SET profile_photo = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+      [photoPath, req.user.id],
+    );
+
+    const user = await getOne(
+      `SELECT id, full_name, email, bio, profile_photo, role, is_verified, is_active, created_at
+       FROM users WHERE id = ?`,
+      [req.user.id],
+    );
+
+    return res.json({
+      message: "Profile photo updated successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Update profile photo error:", error);
+    return res.status(500).json({ message: error.message || "Server error" });
+  }
+};
+
 module.exports = {
   register,
   login,
   getMe,
   updatePassword,
   updateProfile,
+  updateProfilePhoto,
 };

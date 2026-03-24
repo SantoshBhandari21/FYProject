@@ -38,18 +38,21 @@ A comprehensive Node.js backend API for a rental room management system with rol
 ## 🛠️ Installation
 
 1. **Clone the repository**
+
 ```bash
 git clone <your-repo-url>
-cd rental-backend
+cd backend
 ```
 
 2. **Install dependencies**
+
 ```bash
 npm install
 ```
 
 3. **Create environment file**
-Create a `.env` file in the root directory:
+   Create a `.env` file in the root directory:
+
 ```env
 PORT=5000
 NODE_ENV=development
@@ -62,11 +65,13 @@ CLIENT_URL=http://localhost:3000
 ```
 
 4. **Create uploads directory**
+
 ```bash
 mkdir uploads
 ```
 
 5. **Start the server**
+
 ```bash
 # Development mode with auto-restart
 npm run dev
@@ -80,7 +85,7 @@ The server will start on `http://localhost:5000`
 ## 📁 Project Structure
 
 ```
-rental-backend/
+backend/
 ├── src/
 │   ├── config/
 │   │   └── database.js          # SQLite configuration
@@ -110,58 +115,59 @@ rental-backend/
 
 ### Authentication (`/api/auth`)
 
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| POST | `/register` | Public | Register new user |
-| POST | `/login` | Public | Login user |
-| GET | `/me` | Private | Get current user |
-| PUT | `/password` | Private | Update password |
-| PUT | `/profile` | Private | Update profile |
+| Method | Endpoint    | Access  | Description       |
+| ------ | ----------- | ------- | ----------------- |
+| POST   | `/register` | Public  | Register new user |
+| POST   | `/login`    | Public  | Login user        |
+| GET    | `/me`       | Private | Get current user  |
+| PUT    | `/password` | Private | Update password   |
+| PUT    | `/profile`  | Private | Update profile    |
 
 ### Rooms (`/api/rooms`)
 
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| GET | `/` | Public | Get all rooms (with filters) |
-| GET | `/:id` | Public | Get room by ID |
-| POST | `/` | Owner | Create new room |
-| GET | `/owner/my-rooms` | Owner | Get owner's rooms |
-| PUT | `/:id` | Owner | Update room |
-| DELETE | `/:id` | Owner | Delete room |
-| GET | `/user/favorites` | Client | Get favorite rooms |
-| POST | `/:id/favorite` | Client | Add to favorites |
-| DELETE | `/:id/favorite` | Client | Remove from favorites |
+| Method | Endpoint          | Access | Description                  |
+| ------ | ----------------- | ------ | ---------------------------- |
+| GET    | `/`               | Public | Get all rooms (with filters) |
+| GET    | `/:id`            | Public | Get room by ID               |
+| POST   | `/`               | Owner  | Create new room              |
+| GET    | `/owner/my-rooms` | Owner  | Get owner's rooms            |
+| PUT    | `/:id`            | Owner  | Update room                  |
+| DELETE | `/:id`            | Owner  | Delete room                  |
+| GET    | `/user/favorites` | Client | Get favorite rooms           |
+| POST   | `/:id/favorite`   | Client | Add to favorites             |
+| DELETE | `/:id/favorite`   | Client | Remove from favorites        |
 
 ### Bookings (`/api/bookings`)
 
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| POST | `/` | Client | Create booking |
-| GET | `/my-bookings` | Client | Get client's bookings |
-| GET | `/requests` | Owner | Get booking requests |
-| GET | `/:id` | Private | Get booking details |
-| PUT | `/:id/status` | Owner | Approve/reject booking |
-| PUT | `/:id/cancel` | Client | Cancel booking |
-| PUT | `/:id/complete` | Owner | Complete booking |
-| POST | `/:id/review` | Client | Add review |
-| GET | `/stats/dashboard` | Owner | Get owner statistics |
+| Method | Endpoint           | Access  | Description            |
+| ------ | ------------------ | ------- | ---------------------- |
+| POST   | `/`                | Client  | Create booking         |
+| GET    | `/my-bookings`     | Client  | Get client's bookings  |
+| GET    | `/requests`        | Owner   | Get booking requests   |
+| GET    | `/:id`             | Private | Get booking details    |
+| PUT    | `/:id/status`      | Owner   | Approve/reject booking |
+| PUT    | `/:id/cancel`      | Client  | Cancel booking         |
+| PUT    | `/:id/complete`    | Owner   | Complete booking       |
+| POST   | `/:id/review`      | Client  | Add review             |
+| GET    | `/stats/dashboard` | Owner   | Get owner statistics   |
 
 ### Users (`/api/users`) - Admin Only
 
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| GET | `/` | Admin | Get all users |
-| GET | `/stats/dashboard` | Admin | Get dashboard stats |
-| GET | `/rooms/all` | Admin | Get all rooms |
-| GET | `/bookings/all` | Admin | Get all bookings |
-| GET | `/:id` | Admin | Get user by ID |
-| PUT | `/:id` | Admin | Update user |
-| DELETE | `/:id` | Admin | Delete user |
-| PUT | `/:id/toggle-status` | Admin | Activate/deactivate user |
+| Method | Endpoint             | Access | Description              |
+| ------ | -------------------- | ------ | ------------------------ |
+| GET    | `/`                  | Admin  | Get all users            |
+| GET    | `/stats/dashboard`   | Admin  | Get dashboard stats      |
+| GET    | `/rooms/all`         | Admin  | Get all rooms            |
+| GET    | `/bookings/all`      | Admin  | Get all bookings         |
+| GET    | `/:id`               | Admin  | Get user by ID           |
+| PUT    | `/:id`               | Admin  | Update user              |
+| DELETE | `/:id`               | Admin  | Delete user              |
+| PUT    | `/:id/toggle-status` | Admin  | Activate/deactivate user |
 
 ## 📝 Request Examples
 
 ### Register User
+
 ```bash
 POST /api/auth/register
 Content-Type: application/json
@@ -177,6 +183,7 @@ Content-Type: application/json
 ```
 
 ### Login
+
 ```bash
 POST /api/auth/login
 Content-Type: application/json
@@ -189,6 +196,7 @@ Content-Type: application/json
 ```
 
 ### Create Room (Owner)
+
 ```bash
 POST /api/rooms
 Authorization: Bearer <token>
@@ -210,11 +218,13 @@ Content-Type: multipart/form-data
 ```
 
 ### Get Rooms with Filters
+
 ```bash
 GET /api/rooms?location=Lakeside&roomType=Studio&minPrice=10000&maxPrice=20000&page=1&limit=12
 ```
 
 ### Create Booking (Client)
+
 ```bash
 POST /api/bookings
 Authorization: Bearer <token>
@@ -231,18 +241,23 @@ Content-Type: application/json
 ## 🗃️ Database Schema
 
 ### Users Table
+
 - id, full_name, email, password, phone, address, role, is_verified, is_active, created_at, updated_at
 
 ### Rooms Table
+
 - id, owner_id, title, description, address, location, room_type, price, bedrooms, bathrooms, area, amenities, main_image, is_available, created_at, updated_at
 
 ### Bookings Table
+
 - id, room_id, client_id, owner_id, booking_date, move_in_date, move_out_date, status, total_price, message, created_at, updated_at
 
 ### Reviews Table
+
 - id, room_id, client_id, rating, comment, created_at
 
 ### Favorites Table
+
 - id, client_id, room_id, created_at
 
 ## 🔒 Authentication
@@ -270,6 +285,7 @@ The API returns consistent error responses:
 ```
 
 HTTP Status Codes:
+
 - 200: Success
 - 201: Created
 - 400: Bad Request
@@ -281,11 +297,13 @@ HTTP Status Codes:
 ## 🧪 Testing
 
 Test the API health:
+
 ```bash
 GET /api/health
 ```
 
 Response:
+
 ```json
 {
   "status": "OK",

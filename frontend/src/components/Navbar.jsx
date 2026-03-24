@@ -1,8 +1,8 @@
-import { Link, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import { Link, useNavigate } from "react-router-dom";
+import styled from "styled-components";
 
 const Nav = styled.nav`
-  padding: 16px 32px;
+  padding: 12px 32px;
   background: #ffffff;
   display: flex;
   justify-content: space-between;
@@ -10,9 +10,40 @@ const Nav = styled.nav`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 `;
 
+const BrandContainer = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+const LogoImg = styled.img`
+  height: 60px;
+  width: 60px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    height: 45px;
+    width: 45px;
+  }
+`;
+
 const Brand = styled.h3`
   margin: 0;
   color: #111827;
+  font-size: 22px;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
 `;
 
 const NavLinks = styled.div`
@@ -45,17 +76,18 @@ const NavButton = styled.button`
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const user = localStorage.getItem('user');
+  const user = localStorage.getItem("user");
 
   return (
     <Nav>
-      <Brand>myRentals</Brand>
+      <BrandContainer to="/">
+        <LogoImg src="./myLogo.png" alt="myRentals Logo" />
+        <Brand>myRentals</Brand>
+      </BrandContainer>
 
       <NavLinks>
         {user ? (
-          <NavButton onClick={() => navigate('/logout')}>
-            Logout
-          </NavButton>
+          <NavButton onClick={() => navigate("/logout")}>Logout</NavButton>
         ) : (
           <>
             <NavLink to="/BrowseRooms">Login</NavLink>

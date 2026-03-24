@@ -10,6 +10,8 @@ const RoomForm = ({ room, onSubmit, onClose }) => {
     price: "",
     bedrooms: "",
     bathrooms: "",
+    area: "",
+    roomType: "Single",
     amenities: [],
   });
 
@@ -33,6 +35,18 @@ const RoomForm = ({ room, onSubmit, onClose }) => {
     "Dishwasher",
   ];
 
+  const roomTypeOptions = [
+    "Single",
+    "Studio",
+    "1BHK",
+    "2BHK",
+    "3BHK",
+    "4BHK",
+    "Shared",
+    "Penthouse",
+    "Loft",
+  ];
+
   useEffect(() => {
     if (room) {
       setFormData({
@@ -43,6 +57,8 @@ const RoomForm = ({ room, onSubmit, onClose }) => {
         price: room.price || "",
         bedrooms: room.bedrooms || "",
         bathrooms: room.bathrooms || "",
+        area: room.area || "",
+        roomType: room.room_type || "Single",
         amenities: room.amenities || [],
       });
       if (room.main_image) {
@@ -100,7 +116,9 @@ const RoomForm = ({ room, onSubmit, onClose }) => {
       !formData.location ||
       !formData.price ||
       !formData.bedrooms ||
-      !formData.bathrooms
+      !formData.bathrooms ||
+      !formData.area ||
+      !formData.roomType
     ) {
       setError("Please fill in all required fields");
       return;
@@ -109,9 +127,10 @@ const RoomForm = ({ room, onSubmit, onClose }) => {
     if (
       formData.price <= 0 ||
       formData.bedrooms <= 0 ||
-      formData.bathrooms <= 0
+      formData.bathrooms <= 0 ||
+      formData.area <= 0
     ) {
-      setError("Price, bedrooms, and bathrooms must be greater than 0");
+      setError("Price, bedrooms, bathrooms, and area must be greater than 0");
       return;
     }
 
@@ -134,13 +153,14 @@ const RoomForm = ({ room, onSubmit, onClose }) => {
       submitData.append("price", parseFloat(formData.price));
       submitData.append("bedrooms", parseInt(formData.bedrooms));
       submitData.append("bathrooms", parseInt(formData.bathrooms));
+      submitData.append("area", parseFloat(formData.area));
+      submitData.append("roomType", String(formData.roomType));
       submitData.append("amenities", JSON.stringify(formData.amenities));
 
       if (imageFile) {
         submitData.append("mainImage", imageFile);
       }
 
-      // Debug: Log what we're sending
       console.log("Submitting room data:", {
         title: formData.title,
         description: formData.description,
@@ -149,6 +169,8 @@ const RoomForm = ({ room, onSubmit, onClose }) => {
         price: formData.price,
         bedrooms: formData.bedrooms,
         bathrooms: formData.bathrooms,
+        area: formData.area,
+        roomType: formData.roomType,
         amenities: formData.amenities,
         hasImage: !!imageFile,
       });
@@ -232,7 +254,7 @@ const RoomForm = ({ room, onSubmit, onClose }) => {
             <div className="form-row">
               <div className="form-group">
                 <label>
-                  Monthly Rent <span className="required">*</span>
+                  Monthly Rent (Rs) <span className="required">*</span>
                 </label>
                 <input
                   type="number"
@@ -272,7 +294,7 @@ const RoomForm = ({ room, onSubmit, onClose }) => {
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="e.g., New York, Manhattan"
+                placeholder="e.g., Pokhara, Lakeside"
               />
             </div>
           </div>
@@ -280,6 +302,24 @@ const RoomForm = ({ room, onSubmit, onClose }) => {
           {/* Room Details */}
           <div className="form-section">
             <h3>Room Details</h3>
+
+            <div className="form-group">
+              <label>
+                Room Type <span className="required">*</span>
+              </label>
+              <select
+                name="roomType"
+                value={formData.roomType}
+                onChange={handleChange}
+              >
+                {roomTypeOptions.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="form-row">
               <div className="form-group">
                 <label>
@@ -308,6 +348,21 @@ const RoomForm = ({ room, onSubmit, onClose }) => {
                   min="0"
                 />
               </div>
+            </div>
+
+            <div className="form-group">
+              <label>
+                Area (sq ft) <span className="required">*</span>
+              </label>
+              <input
+                type="number"
+                name="area"
+                value={formData.area}
+                onChange={handleChange}
+                placeholder="e.g., 450"
+                step="1"
+                min="0"
+              />
             </div>
           </div>
 
