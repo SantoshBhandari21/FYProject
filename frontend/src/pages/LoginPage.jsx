@@ -112,7 +112,7 @@ const SmallLink = styled(Link)`
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const returnTo = location.state?.returnTo; // tenant return path (optional)
+  const returnTo = location.state?.returnTo;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import "../styles/OwnerDashboard.css";
-import { roomAPI, getStoredUser } from "../services/api";
+import { roomsAPI, roomAPI } from "../services/api";
 import RoomForm from "../components/RoomForm";
 
+const ContentWrapper = styled.div`
+  padding: 18px;
+
+  @media (max-width: 960px) {
+    padding: 14px;
+  }
+`;
+
 const OwnerDashboard = () => {
-  const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -13,43 +20,22 @@ const OwnerDashboard = () => {
   const [editingRoom, setEditingRoom] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  // Check authentication and user role
   useEffect(() => {
-    const user = getStoredUser();
-    console.log("Current user:", user);
-
-    if (!user) {
-      console.warn("No user found, redirecting to login");
-      navigate("/login");
-      return;
-    }
-
-    if (user.role !== "owner") {
-      console.warn("User is not an owner, redirecting to dashboard");
-      navigate("/");
-      return;
-    }
-
     fetchMyRooms();
-  }, [navigate]);
+  }, []);
 
   const fetchMyRooms = async () => {
     try {
       setLoading(true);
       setError("");
       console.log("Fetching rooms...");
-      const data = await roomAPI.getMyRooms();
+      const data = await roomsAPI.getMyRooms();
       console.log("Rooms fetched successfully:", data);
       setRooms(data.rooms || []);
     } catch (err) {
       const errorMsg = err.message || "Failed to fetch rooms";
       console.error("Fetch rooms error:", errorMsg, err);
       setError(errorMsg);
-
-      // If unauthorized, redirect to login
-      if (err.message && err.message.includes("401")) {
-        navigate("/login");
-      }
     } finally {
       setLoading(false);
     }
@@ -69,12 +55,10 @@ const OwnerDashboard = () => {
     try {
       console.log("Submitting room, editing:", !!editingRoom);
       if (editingRoom) {
-        // Update room
         console.log("Updating room:", editingRoom.id);
         await roomAPI.updateRoom(editingRoom.id, formData);
         console.log("Room updated successfully");
       } else {
-        // Create new room
         console.log("Creating new room");
         await roomAPI.createRoom(formData);
         console.log("Room created successfully");
@@ -106,7 +90,7 @@ const OwnerDashboard = () => {
   };
 
   return (
-    <div className="owner-dashboard">
+    <ContentWrapper>
       <div className="dashboard-header">
         <div className="header-content">
           <h1>My Rooms</h1>
@@ -114,10 +98,36 @@ const OwnerDashboard = () => {
             Manage your room listings, add new properties, and track bookings
           </p>
         </div>
-        <button className="btn-add-room" onClick={handleAddRoom}>
-          + Add New Room
-        </button>
+        <div style={{ display: "flex", gap: "12px" }}>
+          <button className="btn-add-room" onClick={handleAddRoom}>
+            + Add New Room
+          </button>
+        </div>
       </div>
+
+      {!loading && rooms.length > 0 && (
+        <div className="analytics-section">
+          <div className="analytics-card">
+            <div className="analytics-label">Total Rooms</div>
+            <div className="analytics-value">{rooms.length}</div>
+            <div className="analytics-hint">All listings</div>
+          </div>
+          <div className="analytics-card">
+            <div className="analytics-label">Available Rooms</div>
+            <div className="analytics-value">
+              {rooms.filter((r) => r.is_available).length}
+            </div>
+            <div className="analytics-hint">Ready to book</div>
+          </div>
+          <div className="analytics-card">
+            <div className="analytics-label">Booked Rooms</div>
+            <div className="analytics-value">
+              {rooms.filter((r) => !r.is_available).length}
+            </div>
+            <div className="analytics-hint">Unavailable</div>
+          </div>
+        </div>
+      )}
 
       {error && <div className="alert-error">{error}</div>}
 
@@ -170,43 +180,50 @@ const OwnerDashboard = () => {
                 )}
 
                 <div className="room-footer">
-                  <div className="room-price">
-                    <span className="price">Rs {room.price}</span>
-                    <span className="period">/month</span>
+                  <div className="price">Rs {room.price}/month</div>
+                  <div className="room-actions">
+                    <button
+                      className="btn-edit"
+                      onClick={() => handleEditRoom(room)}
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => setDeleteConfirm(room.id)}
+                    >
+                      🗑️ Delete
+                    </button>
                   </div>
-                  <div className="room-stats">
-                    {room.avg_rating && (
-                      <span className="rating">
-                        ⭐ {room.avg_rating.toFixed(1)} ({room.review_count}{" "}
-                        reviews)
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="room-actions">
-                  <button
-                    className="btn-edit"
-                    onClick={() => handleEditRoom(room)}
-                    title="Edit room"
-                  >
-                    ✏️ Edit
-                  </button>
-                  <button
-                    className="btn-delete"
-                    onClick={() => setDeleteConfirm(room.id)}
-                    title="Delete room"
-                  >
-                    🗑️ Delete
-                  </button>
                 </div>
               </div>
+
+              {deleteConfirm === room.id && (
+                <div className="delete-confirm">
+                  <div className="confirm-dialog">
+                    <p>Are you sure you want to delete this room?</p>
+                    <div className="confirm-actions">
+                      <button
+                        className="btn-confirm"
+                        onClick={() => handleDeleteRoom(room.id)}
+                      >
+                        Delete
+                      </button>
+                      <button
+                        className="btn-cancel"
+                        onClick={() => setDeleteConfirm(null)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
 
-      {/* Add/Edit Room Modal */}
       {showModal && (
         <RoomForm
           room={editingRoom}
@@ -217,37 +234,7 @@ const OwnerDashboard = () => {
           }}
         />
       )}
-
-      {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="modal-overlay" onClick={() => setDeleteConfirm(null)}>
-          <div
-            className="modal-content delete-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3>Delete Room?</h3>
-            <p>
-              Are you sure you want to delete this room? This action cannot be
-              undone.
-            </p>
-            <div className="modal-actions">
-              <button
-                className="btn-cancel"
-                onClick={() => setDeleteConfirm(null)}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn-delete-confirm"
-                onClick={() => handleDeleteRoom(deleteConfirm)}
-              >
-                Delete Room
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </ContentWrapper>
   );
 };
 

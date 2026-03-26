@@ -372,6 +372,53 @@
   background-color: #ff5252;
 }
 
+/* Analytics Section */
+.analytics-section {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 1000px) {
+  .analytics-section {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .analytics-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+.analytics-card {
+  background: #ffffff;
+  border: 1px solid #e7edf5;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.analytics-label {
+  color: #64748b;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.analytics-value {
+  margin-top: 8px;
+  font-size: 24px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.analytics-hint {
+  margin-top: 6px;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .rooms-grid {

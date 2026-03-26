@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 import styled, { css } from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { roomAPI } from "../services/api";
+import { roomsAPI, getStoredUser } from "../services/api";
+import RoomDetailsModal from "../components/RoomDetailsModal";
 
 //Filtering options using amenities
 const AMENITIES = [
@@ -466,6 +467,7 @@ const BrowseRooms = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedRoom, setSelectedRoom] = useState(null);
 
   //filtering fields
   const [filters, setFilters] = useState({
@@ -481,7 +483,7 @@ const BrowseRooms = () => {
     const fetchRooms = async () => {
       try {
         setLoading(true);
-        const data = await roomAPI.getRooms();
+        const data = await roomsAPI.getRooms();
         console.log("Rooms fetched:", data);
         setRooms(data.rooms || []);
         setError("");
@@ -571,10 +573,18 @@ const BrowseRooms = () => {
   }, [filteredRooms, filters.sortBy]);
 
   //navigate to login after clicking view details and return after login
-  const goToLoginForRoom = (roomId) => {
-    navigate("/login", {
-      state: { returnTo: `/rooms/${roomId}` },
-    });
+  const handleViewDetails = (room) => {
+    const user = getStoredUser();
+    if (!user) {
+      navigate("/login");
+    } else {
+      setSelectedRoom(room);
+    }
+  };
+
+  const handleBookingSuccess = () => {
+    // Optional: refresh rooms or show notification
+    console.log("Booking submitted successfully");
   };
   //Room card component
   const RoomCard = ({ room, isListView }) => {
@@ -673,7 +683,7 @@ const BrowseRooms = () => {
 
             <Price>Rs {room.price.toLocaleString()}/mo</Price>
 
-            <DetailsBtn type="button" onClick={() => goToLoginForRoom(room.id)}>
+            <DetailsBtn type="button" onClick={() => handleViewDetails(room)}>
               View Details
             </DetailsBtn>
           </BottomRow>
@@ -901,6 +911,14 @@ const BrowseRooms = () => {
           </>
         )}
       </Container>
+
+      {selectedRoom && (
+        <RoomDetailsModal
+          room={selectedRoom}
+          onClose={() => setSelectedRoom(null)}
+          onBookingSuccess={handleBookingSuccess}
+        />
+      )}
     </Page>
   );
 };

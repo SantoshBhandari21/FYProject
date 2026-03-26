@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { getStoredUser } from "../services/api";
+import NotificationBell from "./NotificationBell";
 
 const HeaderWrapper = styled.header`
   width: 100%;
@@ -369,19 +370,9 @@ const Header = () => {
             </>
           ) : (
             <>
+              <NotificationBell />
               <ProfileIcon to="/profile" title="Profile">
-                {user?.profile_photo ? (
-                  <img
-                    src={
-                      user.profile_photo.startsWith("http")
-                        ? user.profile_photo
-                        : `http://localhost:5000${user.profile_photo}`
-                    }
-                    alt="Profile"
-                  />
-                ) : (
-                  profileChar
-                )}
+                <i className="fa-solid fa-circle-user"></i>
               </ProfileIcon>
               <LogoutBtn onClick={handleLogout}>Logout</LogoutBtn>
             </>
@@ -424,27 +415,7 @@ const Header = () => {
           ) : (
             <>
               <MobileProfileIcon to="/profile" onClick={isMobile}>
-                {user?.profile_photo ? (
-                  <>
-                    <img
-                      src={
-                        user.profile_photo.startsWith("http")
-                          ? user.profile_photo
-                          : `http://localhost:5000${user.profile_photo}`
-                      }
-                      alt="Profile"
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        objectFit: "cover",
-                      }}
-                    />
-                    {user?.full_name || "Profile"}
-                  </>
-                ) : (
-                  <>👤 {user?.full_name || "Profile"}</>
-                )}
+                <i className="fa-solid fa-circle-user"></i> Profile
               </MobileProfileIcon>
               <MobileLogoutBtn
                 onClick={() => {

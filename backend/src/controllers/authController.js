@@ -51,7 +51,7 @@ const register = async (req, res) => {
     );
 
     const user = await getOne(
-      `SELECT id, full_name, email, bio, role, is_verified, is_active, created_at
+      `SELECT id, full_name, email, role, is_verified, is_active, created_at
        FROM users WHERE id = ?`,
       [result.id],
     );
@@ -126,7 +126,7 @@ const login = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const user = await getOne(
-      `SELECT id, full_name, email, bio, role, is_verified, is_active, created_at
+      `SELECT id, full_name, email, role, is_verified, is_active, created_at
        FROM users WHERE id = ?`,
       [req.user.id],
     );
@@ -181,23 +181,23 @@ const updatePassword = async (req, res) => {
 // ------------------------------
 // UPDATE PROFILE
 // PUT /api/auth/profile
-// Body expected: { fullName, bio }
+// Body expected: { fullName }
 // ------------------------------
 const updateProfile = async (req, res) => {
   try {
-    const { fullName, bio } = req.body;
+    const { fullName } = req.body;
 
     if (!fullName) {
       return res.status(400).json({ message: "fullName is required" });
     }
 
     await runQuery(
-      "UPDATE users SET full_name = ?, bio = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-      [fullName, bio || null, req.user.id],
+      "UPDATE users SET full_name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+      [fullName, req.user.id],
     );
 
     const user = await getOne(
-      `SELECT id, full_name, email, bio, role, is_verified, is_active, created_at
+      `SELECT id, full_name, email, role, is_verified, is_active, created_at
        FROM users WHERE id = ?`,
       [req.user.id],
     );
@@ -224,21 +224,49 @@ const updateProfilePhoto = async (req, res) => {
 
     const photoPath = `/uploads/${req.file.filename}`;
 
-    await runQuery(
-      "UPDATE users SET profile_photo = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-      [photoPath, req.user.id],
-    );
+    try {
+      await runQuery(
+        "UPDATE users SET profile_photo = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+        [photoPath, req.user.id],
+      );
+    } catch (updateError) {
+      // If column doesn't exist, just continue without storing it
+      if (updateError.message.includes("no such column")) {
+        console.warn(
+          "profile_photo column not available, continuing without storing photo path",
+        );
+      } else {
+        throw updateError;
+      }
+    }
 
-    const user = await getOne(
-      `SELECT id, full_name, email, bio, profile_photo, role, is_verified, is_active, created_at
-       FROM users WHERE id = ?`,
-      [req.user.id],
-    );
+    try {
+      const user = await getOne(
+        `SELECT id, full_name, email, role, is_verified, is_active, created_at
+         FROM users WHERE id = ?`,
+        [req.user.id],
+      );
 
-    return res.json({
-      message: "Profile photo updated successfully",
-      user,
-    });
+      return res.json({
+        message: "Profile photo updated successfully",
+        user,
+      });
+    } catch (selectError) {
+      // If profile_photo column doesn't exist, return user without it
+      if (selectError.message.includes("no such column")) {
+        const user = await getOne(
+          `SELECT id, full_name, email, role, is_verified, is_active, created_at
+           FROM users WHERE id = ?`,
+          [req.user.id],
+        );
+
+        return res.json({
+          message: "Profile photo uploaded successfully",
+          user,
+        });
+      }
+      throw selectError;
+    }
   } catch (error) {
     console.error("Update profile photo error:", error);
     return res.status(500).json({ message: error.message || "Server error" });

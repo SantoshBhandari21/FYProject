@@ -26,7 +26,6 @@ const initDatabase = () => {
       full_name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
-      bio TEXT,
       profile_photo TEXT,
       role TEXT NOT NULL CHECK(role IN ('admin', 'owner', 'client')),
       is_verified INTEGER DEFAULT 0,
@@ -129,6 +128,57 @@ const initDatabase = () => {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Notifications table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS notifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      type TEXT NOT NULL CHECK(type IN ('booking_request', 'booking_approved', 'booking_rejected')),
+      title TEXT NOT NULL,
+      message TEXT NOT NULL,
+      booking_id INTEGER,
+      is_read INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Add missing columns if they don't exist (for existing databases)
+  db.run(
+    `
+    PRAGMA table_info(users)
+  `,
+    (err, rows) => {
+      if (err) {
+        console.error("Error checking users table:", err);
+        return;
+      }
+
+      // Check if profile_photo column exists
+      db.all("PRAGMA table_info(users)", (err, columns) => {
+        if (err) {
+          console.error("Error getting table info:", err);
+          return;
+        }
+
+        const hasProfilePhoto = columns.some(
+          (col) => col.name === "profile_photo",
+        );
+
+        if (!hasProfilePhoto) {
+          db.run("ALTER TABLE users ADD COLUMN profile_photo TEXT", (err) => {
+            if (err) {
+              console.error("Error adding profile_photo column:", err);
+            } else {
+              console.log("Added profile_photo column to users table");
+            }
+          });
+        }
+      });
+    },
+  );
 
   console.log("Database tables initialized successfully");
 };

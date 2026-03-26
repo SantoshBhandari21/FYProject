@@ -1,295 +1,192 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { authAPI, getStoredUser } from "../services/api";
+import { getStoredUser, authAPI } from "../services/api";
 
-const PageContainer = styled.div`
+const Page = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 40px 20px;
+  background-color: #f5f7fa;
+  padding: 2rem;
 `;
 
 const Container = styled.div`
-  max-width: 900px;
+  max-width: 600px;
   margin: 0 auto;
-`;
-
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 40px;
-  color: #1e293b;
-`;
-
-const Title = styled.h1`
-  font-size: 32px;
-  margin: 0 0 10px 0;
-`;
-
-const Subtitle = styled.p`
-  font-size: 16px;
-  color: #64748b;
-  margin: 0;
-`;
-
-const Card = styled.div`
   background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  padding: 30px;
-  margin-bottom: 30px;
-`;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
 
-const CardTitle = styled.h2`
-  font-size: 22px;
-  color: #1e293b;
-  margin: 0 0 25px 0;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #e2e8f0;
-`;
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
 
-const FormGroup = styled.div`
-  margin-bottom: 20px;
-
-  &:last-child {
-    margin-bottom: 0;
+  @media (max-width: 480px) {
+    padding: 1rem;
   }
 `;
 
-const Label = styled.label`
-  display: block;
-  font-size: 14px;
+const Header = styled.div`
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e7edf5;
+  padding-bottom: 1rem;
+`;
+
+const Title = styled.h1`
+  margin: 0;
+  font-size: 2rem;
+  color: #0f172a;
+  font-weight: 700;
+`;
+
+const Subtitle = styled.p`
+  margin: 0.5rem 0 0;
+  color: #64748b;
+  font-size: 0.95rem;
+`;
+
+const Section = styled.div`
+  margin-bottom: 2rem;
+`;
+
+const SectionTitle = styled.h2`
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #475569;
-  margin-bottom: 8px;
+  color: #0f172a;
+  margin: 0 0 1rem;
+`;
+
+const InfoGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+`;
+
+const Label = styled.label`
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #64748b;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 12px 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
   border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  background: #f8fafc;
+  color: #0f172a;
+  box-sizing: border-box;
 
   &:focus {
     outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 99, 235, 0.6);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    background: #ffffff;
   }
 
   &:disabled {
     background: #f1f5f9;
+    color: #64748b;
     cursor: not-allowed;
   }
 `;
 
-const TextArea = styled.textarea`
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 14px;
-  font-family: inherit;
-  resize: vertical;
-  min-height: 100px;
-  transition: all 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-  }
-`;
-
-const ProfilePhotoSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 30px;
-  margin-bottom: 30px;
-  padding-bottom: 30px;
-  border-bottom: 2px solid #e2e8f0;
-
-  @media (max-width: 600px) {
-    flex-direction: column;
-    text-align: center;
-  }
-`;
-
-const PhotoPreview = styled.div`
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 60px;
-  font-weight: bold;
-  flex-shrink: 0;
-`;
-
-const PhotoUploadBox = styled.div`
+const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 10px;
-`;
-
-const FileInput = styled.input`
-  padding: 10px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-
-  &::file-selector-button {
-    padding: 8px 16px;
-    background: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    margin-right: 10px;
-
-    &:hover {
-      background: #1d4ed8;
-    }
-  }
-`;
-
-const FileHelp = styled.p`
-  font-size: 12px;
-  color: #64748b;
-  margin: 0;
-`;
-
-const FormRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-
-  @media (max-width: 600px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-
-  @media (max-width: 600px) {
-    flex-direction: column;
-  }
+  gap: 1rem;
 `;
 
 const Button = styled.button`
   padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  border-radius: 10px;
   border: none;
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
 
-  ${({ $primary }) =>
-    $primary
-      ? `
-    background: #2563eb;
-    color: white;
-
-    &:hover {
-      background: #1d4ed8;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-    }
-
-    &:disabled {
-      background: #cbd5e1;
-      cursor: not-allowed;
-      transform: none;
-    }
-  `
-      : `
-    background: transparent;
-    color: #2563eb;
-    border: 1px solid #2563eb;
-
-    &:hover {
-      background: #f0f9ff;
-    }
-  `}
-`;
-
-const Alert = styled.div`
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  font-size: 14px;
-  font-weight: 500;
-
-  ${({ $type }) =>
-    $type === "error"
-      ? `
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
-  `
-      : `
-    background: #dcfce7;
-    color: #166534;
-    border: 1px solid #86efac;
-  `}
-`;
-
-const LoadingSpinner = styled.div`
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: white;
-  animation: spin 1s ease-in-out infinite;
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
+  &:hover:not(:disabled) {
+    background: #1d4ed8;
+    transform: translateY(-2px);
   }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+const ErrorBox = styled.div`
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+`;
+
+const SuccessBox = styled.div`
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+`;
+
+const RoleBadge = styled.span`
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: ${(props) => {
+    switch (props.$role) {
+      case "admin":
+        return "#fee2e2";
+      case "owner":
+        return "#fef3c7";
+      case "client":
+        return "#dcfce7";
+      default:
+        return "#f1f5f9";
+    }
+  }};
+  color: ${(props) => {
+    switch (props.$role) {
+      case "admin":
+        return "#991b1b";
+      case "owner":
+        return "#92400e";
+      case "client":
+        return "#166534";
+      default:
+        return "#475569";
+    }
+  }};
 `;
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const [profileData, setProfileData] = useState({
-    full_name: "",
-    email: "",
-    bio: "",
-  });
-
-  const [passwordData, setPasswordData] = useState({
+  const [formData, setFormData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-
-  const [profilePhoto, setProfilePhoto] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState(null);
-
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProfilePhoto(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotoPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   useEffect(() => {
     const currentUser = getStoredUser();
@@ -298,308 +195,193 @@ const ProfilePage = () => {
       return;
     }
     setUser(currentUser);
-    setProfileData({
-      full_name: currentUser.full_name || "",
-      email: currentUser.email || "",
-      bio: currentUser.bio || "",
-    });
+    setLoading(false);
   }, [navigate]);
 
-  const handleProfileChange = (e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setProfileData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
     setError("");
     setSuccess("");
-
-    try {
-      // Convert field names to camelCase for backend
-      const dataToSend = {
-        fullName: profileData.full_name,
-        bio: profileData.bio,
-      };
-
-      await authAPI.updateProfile(dataToSend);
-
-      // Upload profile photo if selected
-      if (profilePhoto) {
-        const formData = new FormData();
-        formData.append("file", profilePhoto);
-        await authAPI.uploadProfilePhoto(formData);
-      }
-
-      setSuccess("Profile updated successfully!");
-
-      // Update stored user with snake_case field names
-      const updatedUser = {
-        ...user,
-        full_name: profileData.full_name,
-        bio: profileData.bio,
-      };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      setUser(updatedUser);
-
-      // Reset photo state after successful upload
-      setProfilePhoto(null);
-      setPhotoPreview(null);
-
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError(err.message || "Failed to update profile");
-    } finally {
-      setLoading(false);
-    }
   };
 
-  const handleUpdatePassword = async (e) => {
+  const handlePasswordChange = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setError("New passwords do not match");
+    // Validation
+    if (!formData.currentPassword) {
+      setError("Current password is required");
       return;
     }
 
-    if (passwordData.newPassword.length < 6) {
+    if (!formData.newPassword) {
+      setError("New password is required");
+      return;
+    }
+
+    if (formData.newPassword.length < 6) {
       setError("New password must be at least 6 characters");
       return;
     }
 
-    setLoading(true);
+    if (formData.newPassword !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (formData.currentPassword === formData.newPassword) {
+      setError("New password must be different from current password");
+      return;
+    }
 
     try {
+      setSubmitting(true);
       await authAPI.updatePassword({
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword,
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword,
       });
-      setSuccess("Password changed successfully!");
-      setPasswordData({
+
+      setSuccess("Password updated successfully!");
+      setFormData({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
-      setTimeout(() => setSuccess(""), 3000);
+
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
+      }, 2000);
     } catch (err) {
-      setError(err.message || "Failed to change password");
+      setError(err.message || "Failed to update password");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
-  if (!user) {
-    return <PageContainer>Loading...</PageContainer>;
+  if (loading) {
+    return (
+      <Page>
+        <Container>
+          <p style={{ textAlign: "center", color: "#64748b" }}>
+            Loading profile...
+          </p>
+        </Container>
+      </Page>
+    );
   }
 
-  const userInitial = user.full_name?.[0]?.toUpperCase() || "U";
+  if (!user) {
+    return null;
+  }
 
   return (
-    <PageContainer>
+    <Page>
       <Container>
         <Header>
-          <Title>Account Settings</Title>
-          <Subtitle>Manage your profile and account preferences</Subtitle>
+          <Title>My Profile</Title>
+          <Subtitle>Manage your account settings</Subtitle>
         </Header>
 
-        {error && <Alert $type="error">{error}</Alert>}
-        {success && <Alert $type="success">{success}</Alert>}
+        {error && <ErrorBox>{error}</ErrorBox>}
+        {success && <SuccessBox>{success}</SuccessBox>}
 
-        {/* Profile Information */}
-        <Card>
-          <CardTitle>Profile Information</CardTitle>
+        {/* User Information */}
+        <Section>
+          <SectionTitle>Account Information</SectionTitle>
 
-          <ProfilePhotoSection>
-            <PhotoPreview>
-              {photoPreview ? (
-                <img
-                  src={photoPreview}
-                  alt="Profile preview"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                  }}
-                />
-              ) : (
-                userInitial
-              )}
-            </PhotoPreview>
-            <PhotoUploadBox>
-              <Label>Profile Photo</Label>
-              <FileInput
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoChange}
-              />
-              <FileHelp>
-                Upload a profile picture (JPG, PNG, up to 5MB)
-              </FileHelp>
-            </PhotoUploadBox>
-          </ProfilePhotoSection>
+          <InfoGroup>
+            <Label>Email Address</Label>
+            <Input type="email" value={user.email || ""} disabled />
+            <p
+              style={{
+                fontSize: "0.8rem",
+                color: "#94a3b8",
+                margin: "0.25rem 0 0",
+              }}
+            >
+              Email cannot be changed
+            </p>
+          </InfoGroup>
 
-          <form onSubmit={handleUpdateProfile}>
-            <FormRow>
-              <FormGroup>
-                <Label>Full Name</Label>
-                <Input
-                  type="text"
-                  name="full_name"
-                  value={profileData.full_name}
-                  onChange={handleProfileChange}
-                  placeholder="Your full name"
-                />
-              </FormGroup>
-              <FormGroup>
-                <Label>Email Address</Label>
-                <Input
-                  type="email"
-                  name="email"
-                  value={profileData.email}
-                  onChange={handleProfileChange}
-                  placeholder="your.email@example.com"
-                  disabled
-                />
-              </FormGroup>
-            </FormRow>
+          <InfoGroup>
+            <Label>Full Name</Label>
+            <Input type="text" value={user.full_name || ""} disabled />
+          </InfoGroup>
 
-            <FormGroup>
-              <Label>Bio</Label>
-              <TextArea
-                name="bio"
-                value={profileData.bio}
-                onChange={handleProfileChange}
-                placeholder="Tell us about yourself (optional)"
-              />
-            </FormGroup>
-
-            <ButtonGroup>
-              <Button type="button" onClick={() => navigate(-1)}>
-                Cancel
-              </Button>
-              <Button $primary type="submit" disabled={loading}>
-                {loading ? (
-                  <>
-                    <LoadingSpinner /> Saving...
-                  </>
-                ) : (
-                  "Save Changes"
-                )}
-              </Button>
-            </ButtonGroup>
-          </form>
-        </Card>
+          <InfoGroup>
+            <Label>Role</Label>
+            <RoleBadge $role={user.role}>{user.role}</RoleBadge>
+            <p
+              style={{
+                fontSize: "0.8rem",
+                color: "#94a3b8",
+                margin: "0.25rem 0 0",
+              }}
+            >
+              Role cannot be changed
+            </p>
+          </InfoGroup>
+        </Section>
 
         {/* Change Password */}
-        <Card>
-          <CardTitle>Change Password</CardTitle>
+        <Section>
+          <SectionTitle>Change Password</SectionTitle>
 
-          <form onSubmit={handleUpdatePassword}>
-            <FormGroup>
-              <Label>Current Password</Label>
+          <Form onSubmit={handlePasswordChange}>
+            <InfoGroup>
+              <Label htmlFor="currentPassword">Current Password</Label>
               <Input
+                id="currentPassword"
                 type="password"
                 name="currentPassword"
-                value={passwordData.currentPassword}
-                onChange={handlePasswordChange}
+                value={formData.currentPassword}
+                onChange={handleInputChange}
                 placeholder="Enter your current password"
-                required
+                disabled={submitting}
               />
-            </FormGroup>
+            </InfoGroup>
 
-            <FormRow>
-              <FormGroup>
-                <Label>New Password</Label>
-                <Input
-                  type="password"
-                  name="newPassword"
-                  value={passwordData.newPassword}
-                  onChange={handlePasswordChange}
-                  placeholder="Enter new password"
-                  required
-                />
-              </FormGroup>
-              <FormGroup>
-                <Label>Confirm Password</Label>
-                <Input
-                  type="password"
-                  name="confirmPassword"
-                  value={passwordData.confirmPassword}
-                  onChange={handlePasswordChange}
-                  placeholder="Confirm new password"
-                  required
-                />
-              </FormGroup>
-            </FormRow>
+            <InfoGroup>
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                name="newPassword"
+                value={formData.newPassword}
+                onChange={handleInputChange}
+                placeholder="Enter a new password"
+                disabled={submitting}
+              />
+            </InfoGroup>
 
-            <ButtonGroup>
-              <Button
-                type="button"
-                onClick={() =>
-                  setPasswordData({
-                    currentPassword: "",
-                    newPassword: "",
-                    confirmPassword: "",
-                  })
-                }
-              >
-                Clear
-              </Button>
-              <Button $primary type="submit" disabled={loading}>
-                {loading ? (
-                  <>
-                    <LoadingSpinner /> Updating...
-                  </>
-                ) : (
-                  "Change Password"
-                )}
-              </Button>
-            </ButtonGroup>
-          </form>
-        </Card>
+            <InfoGroup>
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                placeholder="Confirm your new password"
+                disabled={submitting}
+              />
+            </InfoGroup>
 
-        {/* Account Information */}
-        <Card>
-          <CardTitle>Account Information</CardTitle>
-
-          <FormGroup>
-            <Label>User Role</Label>
-            <Input
-              type="text"
-              value={user.role?.toUpperCase() || "N/A"}
-              disabled
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label>Member Since</Label>
-            <Input
-              type="text"
-              value={new Date().toLocaleDateString()}
-              disabled
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label>Account Status</Label>
-            <Input
-              type="text"
-              value={user.is_active ? "Active" : "Inactive"}
-              disabled
-            />
-          </FormGroup>
-        </Card>
+            <Button type="submit" disabled={submitting}>
+              {submitting ? "Updating..." : "Update Password"}
+            </Button>
+          </Form>
+        </Section>
       </Container>
-    </PageContainer>
+    </Page>
   );
 };
 

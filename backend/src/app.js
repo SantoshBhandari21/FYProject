@@ -31,12 +31,14 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Health check route
 app.get("/api/health", (req, res) => {

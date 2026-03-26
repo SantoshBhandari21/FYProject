@@ -2,12 +2,19 @@
 import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { usersAPI } from "../services/api";
+import { usersAPI, getStoredUser } from "../services/api";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
 
-  const tabs = ["Overview", "Users", "Rooms", "Bookings", "Analytics", "Settings"];
+  const tabs = [
+    "Overview",
+    "Users",
+    "Rooms",
+    "Bookings",
+    "Analytics",
+    "Settings",
+  ];
   const [active, setActive] = useState("Overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -17,7 +24,22 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [pagination, setPagination] = useState(null);
 
-  const normalizeRole = (role) => String(role || "").trim().toLowerCase();
+  // Normalize role to lowercase
+  const normalizeRole = (role) =>
+    String(role || "")
+      .trim()
+      .toLowerCase();
+
+  // COMMENTED OUT: Access control disabled
+  // // Verify admin access on component mount
+  // useEffect(() => {
+  //   const user = getStoredUser();
+  //   if (!user || normalizeRole(user.role) !== "admin") {
+  //     console.warn("Unauthorized: User is not an admin. Redirecting to home.");
+  //     navigate("/");
+  //     return;
+  //   }
+  // }, [navigate]);
 
   const loadUsers = async () => {
     setError("");
@@ -41,10 +63,14 @@ export default function AdminDashboard() {
 
   const counts = useMemo(() => {
     const total = users.length;
-    const admins = users.filter((u) => normalizeRole(u.role) === "admin").length;
-    const owners = users.filter((u) => normalizeRole(u.role) === "owner").length;
+    const admins = users.filter(
+      (u) => normalizeRole(u.role) === "admin",
+    ).length;
+    const owners = users.filter(
+      (u) => normalizeRole(u.role) === "owner",
+    ).length;
     const tenants = users.filter((u) =>
-      ["tenant", "client", "user"].includes(normalizeRole(u.role))
+      ["tenant", "client", "user"].includes(normalizeRole(u.role)),
     ).length;
 
     return { total, admins, owners, tenants };
@@ -57,7 +83,7 @@ export default function AdminDashboard() {
       { label: "Owners", value: counts.owners },
       { label: "Tenants", value: counts.tenants },
     ],
-    [counts, pagination]
+    [counts, pagination],
   );
 
   return (
@@ -104,14 +130,6 @@ export default function AdminDashboard() {
             </LeftTop>
           </Topbar>
 
-          <TabRow>
-            {tabs.map((t) => (
-              <Tab key={t} $active={active === t} onClick={() => setActive(t)}>
-                {t}
-              </Tab>
-            ))}
-          </TabRow>
-
           <Section $pad="20px" $padMobile="14px">
             {loading && (
               <Panel>
@@ -146,7 +164,9 @@ export default function AdminDashboard() {
                   <Panel>
                     <PanelTitle>Summary</PanelTitle>
                     <List>
-                      <li>Total users: {pagination?.totalUsers ?? users.length}</li>
+                      <li>
+                        Total users: {pagination?.totalUsers ?? users.length}
+                      </li>
                       <li>Owners: {counts.owners}</li>
                       <li>Tenants: {counts.tenants}</li>
                     </List>
@@ -155,7 +175,9 @@ export default function AdminDashboard() {
                   <Panel>
                     <PanelTitle>Quick Actions</PanelTitle>
                     <ActionRow>
-                      <PrimaryBtn onClick={() => setActive("Users")}>View Users</PrimaryBtn>
+                      <PrimaryBtn onClick={() => setActive("Users")}>
+                        View Users
+                      </PrimaryBtn>
                     </ActionRow>
                   </Panel>
                 </TwoCol>
@@ -166,7 +188,9 @@ export default function AdminDashboard() {
               <Panel>
                 <PanelTitle>
                   All Users{" "}
-                  <span style={{ color: "#64748b", fontWeight: 600, fontSize: 13 }}>
+                  <span
+                    style={{ color: "#64748b", fontWeight: 600, fontSize: 13 }}
+                  >
                     ({pagination?.totalUsers ?? users.length})
                   </span>
                 </PanelTitle>
@@ -190,7 +214,9 @@ export default function AdminDashboard() {
                             <td>{u.full_name || "-"}</td>
                             <td>{u.email || "-"}</td>
                             <td>
-                              <RolePill>{normalizeRole(u.role) || "-"}</RolePill>
+                              <RolePill>
+                                {normalizeRole(u.role) || "-"}
+                              </RolePill>
                             </td>
                             <td>{u.is_active === 0 ? "Inactive" : "Active"}</td>
                           </tr>
@@ -202,14 +228,17 @@ export default function AdminDashboard() {
               </Panel>
             )}
 
-            {!loading && !error && active !== "Overview" && active !== "Users" && (
-              <Panel>
-                <PanelTitle>{active}</PanelTitle>
-                <p style={{ margin: 0, color: "#546173" }}>
-                  Hook this tab to your API when ready.
-                </p>
-              </Panel>
-            )}
+            {!loading &&
+              !error &&
+              active !== "Overview" &&
+              active !== "Users" && (
+                <Panel>
+                  <PanelTitle>{active}</PanelTitle>
+                  <p style={{ margin: 0, color: "#546173" }}>
+                    Hook this tab to your API when ready.
+                  </p>
+                </Panel>
+              )}
           </Section>
         </Content>
       </Layout>

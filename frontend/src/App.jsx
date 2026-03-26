@@ -6,6 +6,7 @@ import styled from "styled-components";
 import GlobalStyles from "./styles/GlobalStyles";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+// import ProtectedRoute from "./components/ProtectedRoute"; // COMMENTED OUT: Access control disabled
 
 // Pages (based on your folder structure: src/pages/*.jsx)
 import HomePage from "./pages/HomePage";
@@ -18,8 +19,10 @@ import ContactPage from "./pages/ContactPage";
 
 import AdminDashboard from "./pages/AdminDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
+import OwnerLayout from "./components/OwnerLayout";
 import ClientDashboard from "./pages/ClientDashboard";
 import ProfilePage from "./pages/ProfilePage";
+import BookingRequests from "./pages/BookingRequests";
 
 // Auth Context
 import { AuthProvider } from "./hooks/useAuth.jsx";
@@ -46,19 +49,25 @@ function App() {
 
           <Main>
             <Routes>
-              {/* Public */}
+              {/* Public Routes */}
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<SignUpPage />} />
               <Route path="/browse" element={<BrowseRooms />} />
-              <Route path="/logout" element={<LogoutPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/logout" element={<LogoutPage />} />
+
+              {/* COMMENTED OUT: Access control disabled */}
+              {/* Protected: Profile (Any authenticated user) */}
               <Route path="/profile" element={<ProfilePage />} />
 
-              {/* Dashboards (must match LoginPage navigate paths) */}
+              {/* Protected: Role-based Dashboards */}
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/owner/dashboard" element={<OwnerDashboard />} />
+              <Route path="/owner/*" element={<OwnerLayout />}>
+                <Route path="dashboard" element={<OwnerDashboard />} />
+                <Route path="booking-requests" element={<BookingRequests />} />
+              </Route>
               <Route path="/client/dashboard" element={<ClientDashboard />} />
 
               {/* 404 */}

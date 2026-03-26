@@ -369,6 +369,33 @@ export const usersAPI = {
   },
 };
 
+// ==================== NOTIFICATIONS API ====================
+
+export const notificationsAPI = {
+  getNotifications: async (status = null) => {
+    const queryString = status ? `?status=${status}` : "";
+    return apiCall(`/notifications${queryString}`);
+  },
+
+  markAsRead: async (notificationId) => {
+    return apiCall(`/notifications/${notificationId}/read`, {
+      method: "PUT",
+    });
+  },
+
+  markAllAsRead: async () => {
+    return apiCall(`/notifications/all/read-all`, {
+      method: "PUT",
+    });
+  },
+
+  deleteNotification: async (notificationId) => {
+    return apiCall(`/notifications/${notificationId}`, {
+      method: "DELETE",
+    });
+  },
+};
+
 // ==================== HELPER FUNCTIONS ====================
 
 export const saveAuthData = (token, user) => {
@@ -398,6 +425,7 @@ export default {
   rooms: roomsAPI,
   bookings: bookingsAPI,
   users: usersAPI,
+  notifications: notificationsAPI,
   saveAuthData,
   getStoredUser,
   isAuthenticated,
