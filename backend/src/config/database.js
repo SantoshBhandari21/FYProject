@@ -79,7 +79,7 @@ const initDatabase = () => {
       booking_date DATE NOT NULL,
       move_in_date DATE NOT NULL,
       move_out_date DATE,
-      status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'approved', 'rejected', 'cancelled', 'completed')),
+      status TEXT DEFAULT 'pending_payment' CHECK(status IN ('pending_payment', 'pending', 'approved', 'rejected', 'cancelled', 'completed')),
       total_price REAL NOT NULL,
       message TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -101,6 +101,25 @@ const initDatabase = () => {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
       FOREIGN KEY (client_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `);
+
+  // Payments table (eSewa)
+  db.run(`
+    CREATE TABLE IF NOT EXISTS payments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      booking_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      amount REAL NOT NULL,
+      payment_method TEXT DEFAULT 'esewa',
+      transaction_uuid VARCHAR(255) UNIQUE,
+      status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'success', 'failed', 'cancelled')),
+      esewa_reference_id VARCHAR(255),
+      esewa_response TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )
   `);
 

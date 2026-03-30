@@ -582,10 +582,6 @@ const BrowseRooms = () => {
     }
   };
 
-  const handleBookingSuccess = () => {
-    // Optional: refresh rooms or show notification
-    console.log("Booking submitted successfully");
-  };
   //Room card component
   const RoomCard = ({ room, isListView }) => {
     const isFavorite = favorites.includes(room.id);
@@ -916,7 +912,6 @@ const BrowseRooms = () => {
         <RoomDetailsModal
           room={selectedRoom}
           onClose={() => setSelectedRoom(null)}
-          onBookingSuccess={handleBookingSuccess}
         />
       )}
     </Page>

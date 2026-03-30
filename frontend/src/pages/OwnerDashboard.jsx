@@ -94,9 +94,7 @@ const OwnerDashboard = () => {
       <div className="dashboard-header">
         <div className="header-content">
           <h1>My Rooms</h1>
-          <p>
-            Manage your room listings, add new properties, and track bookings
-          </p>
+          <p>Manage your room listings and add new properties</p>
         </div>
         <div style={{ display: "flex", gap: "12px" }}>
           <button className="btn-add-room" onClick={handleAddRoom}>

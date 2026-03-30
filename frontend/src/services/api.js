@@ -247,58 +247,28 @@ export const roomsAPI = {
   },
 };
 
-// ==================== BOOKINGS API ====================
+// ==================== RENTALS API ====================
 
-export const bookingsAPI = {
-  createBooking: async (bookingData) => {
-    return apiCall("/bookings", {
+export const rentalsAPI = {
+  createRental: async (rentalData) => {
+    return apiCall("/rentals", {
       method: "POST",
-      body: bookingData,
+      body: rentalData,
     });
   },
 
-  getMyBookings: async (status = null) => {
+  getMyRentals: async (status = null) => {
     const queryString = status ? `?status=${status}` : "";
-    return apiCall(`/bookings/my-bookings${queryString}`);
+    return apiCall(`/rentals/my-rentals${queryString}`);
   },
 
-  getBookingRequests: async (status = null) => {
+  getRentalRequests: async (status = null) => {
     const queryString = status ? `?status=${status}` : "";
-    return apiCall(`/bookings/requests${queryString}`);
+    return apiCall(`/rentals/requests${queryString}`);
   },
 
-  getBookingById: async (id) => {
-    return apiCall(`/bookings/${id}`);
-  },
-
-  updateBookingStatus: async (id, status) => {
-    return apiCall(`/bookings/${id}/status`, {
-      method: "PUT",
-      body: { status },
-    });
-  },
-
-  cancelBooking: async (id) => {
-    return apiCall(`/bookings/${id}/cancel`, {
-      method: "PUT",
-    });
-  },
-
-  completeBooking: async (id) => {
-    return apiCall(`/bookings/${id}/complete`, {
-      method: "PUT",
-    });
-  },
-
-  addReview: async (bookingId, reviewData) => {
-    return apiCall(`/bookings/${bookingId}/review`, {
-      method: "POST",
-      body: reviewData,
-    });
-  },
-
-  getOwnerStats: async () => {
-    return apiCall("/bookings/stats/dashboard");
+  getRentalById: async (id) => {
+    return apiCall(`/rentals/${id}`);
   },
 };
 
@@ -396,6 +366,25 @@ export const notificationsAPI = {
   },
 };
 
+// ==================== PAYMENTS API ====================
+
+export const paymentsAPI = {
+  initiatePayment: async (paymentData) => {
+    return apiCall("/payments/initiate", {
+      method: "POST",
+      body: paymentData,
+    });
+  },
+
+  getPaymentStatus: async (transactionUUID) => {
+    return apiCall(`/payments/status/${transactionUUID}`);
+  },
+
+  getPaymentByBooking: async (bookingId) => {
+    return apiCall(`/payments/booking/${bookingId}`);
+  },
+};
+
 // ==================== HELPER FUNCTIONS ====================
 
 export const saveAuthData = (token, user) => {
@@ -423,9 +412,10 @@ export const roomAPI = roomsAPI;
 export default {
   auth: authAPI,
   rooms: roomsAPI,
-  bookings: bookingsAPI,
+  rentals: rentalsAPI,
   users: usersAPI,
   notifications: notificationsAPI,
+  payments: paymentsAPI,
   saveAuthData,
   getStoredUser,
   isAuthenticated,

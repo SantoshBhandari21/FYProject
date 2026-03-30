@@ -7,14 +7,7 @@ import { usersAPI, getStoredUser } from "../services/api";
 export default function AdminDashboard() {
   const navigate = useNavigate();
 
-  const tabs = [
-    "Overview",
-    "Users",
-    "Rooms",
-    "Bookings",
-    "Analytics",
-    "Settings",
-  ];
+  const tabs = ["Overview", "Users", "Rooms", "Analytics", "Settings"];
   const [active, setActive] = useState("Overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 

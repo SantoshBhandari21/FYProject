@@ -203,7 +203,7 @@ const Overlay = styled.div`
 
 const OwnerLayout = () => {
   const navigate = useNavigate();
-  const [active, setActive] = useState("My Rooms");
+  const [, setActive] = useState("My Rooms");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
@@ -225,16 +225,7 @@ const OwnerLayout = () => {
           </Brand>
         </SidebarHeader>
 
-        <Nav>
-          <NavItem
-            $active={active === "Booking Requests"}
-            onClick={() =>
-              handleNavigation("Booking Requests", "/owner/booking-requests")
-            }
-          >
-            📋 Booking Requests
-          </NavItem>
-        </Nav>
+        <Nav></Nav>
 
         <SidebarFooter>
           <NotificationButton

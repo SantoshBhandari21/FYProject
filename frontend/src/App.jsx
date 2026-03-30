@@ -22,7 +22,8 @@ import OwnerDashboard from "./pages/OwnerDashboard";
 import OwnerLayout from "./components/OwnerLayout";
 import ClientDashboard from "./pages/ClientDashboard";
 import ProfilePage from "./pages/ProfilePage";
-import BookingRequests from "./pages/BookingRequests";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailed from "./pages/PaymentFailed";
 
 // Auth Context
 import { AuthProvider } from "./hooks/useAuth.jsx";
@@ -58,6 +59,16 @@ function App() {
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/logout" element={<LogoutPage />} />
 
+              {/* Payment Routes */}
+              <Route
+                path="/rental/payment-success"
+                element={<PaymentSuccess />}
+              />
+              <Route
+                path="/rental/payment-failed"
+                element={<PaymentFailed />}
+              />
+
               {/* COMMENTED OUT: Access control disabled */}
               {/* Protected: Profile (Any authenticated user) */}
               <Route path="/profile" element={<ProfilePage />} />
@@ -66,7 +77,6 @@ function App() {
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/owner/*" element={<OwnerLayout />}>
                 <Route path="dashboard" element={<OwnerDashboard />} />
-                <Route path="booking-requests" element={<BookingRequests />} />
               </Route>
               <Route path="/client/dashboard" element={<ClientDashboard />} />
 

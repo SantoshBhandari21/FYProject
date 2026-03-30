@@ -30,14 +30,16 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const roomRoutes = require("./routes/roomRoutes");
-const bookingRoutes = require("./routes/bookingRoutes");
+const rentalRoutes = require("./routes/rentalRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/rooms", roomRoutes);
-app.use("/api/bookings", bookingRoutes);
+app.use("/api/rentals", rentalRoutes);
+app.use("/api/payments", paymentRoutes);
 app.use("/api/notifications", notificationRoutes);
 
 // Health check route

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { X, MapPin, Bed, Bath, Wifi, Car, Utensils, Home } from "lucide-react";
-import { getStoredUser, bookingsAPI } from "../services/api";
+import { paymentsAPI } from "../services/api";
 
 const Overlay = styled.div`
   position: fixed;
@@ -180,35 +180,25 @@ const AmenityTag = styled.div`
   font-weight: 500;
 `;
 
-const BookingSection = styled.div`
+const RentalSection = styled.div`
   background: #f0f9ff;
-  border: 2px solid #bfdbfe;
+  border: 2px solid #0284c7;
   border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  padding: 2rem;
+  margin-top: 2rem;
 `;
 
-const BookingTitle = styled.h3`
-  margin: 0 0 1rem;
-  font-size: 1rem;
+const RentalTitle = styled.h3`
+  margin: 0 0 1.5rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: #0f172a;
 `;
 
-const Form = styled.form`
+const RentalForm = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-`;
-
-const FormRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+  gap: 1.5rem;
 `;
 
 const FormGroup = styled.div`
@@ -218,9 +208,9 @@ const FormGroup = styled.div`
 `;
 
 const Label = styled.label`
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: #475569;
+  color: #1f2937;
 `;
 
 const Input = styled.input`
@@ -233,8 +223,8 @@ const Input = styled.input`
 
   &:focus {
     outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
   }
 
   &:disabled {
@@ -244,38 +234,24 @@ const Input = styled.input`
   }
 `;
 
-const TextArea = styled.textarea`
-  padding: 0.75rem 1rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  color: #0f172a;
+const PriceCalculation = styled.div`
   background: white;
-  font-family: inherit;
-  resize: vertical;
-  min-height: 80px;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  margin: 1rem 0;
 
-  &:focus {
-    outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-  }
-
-  &:disabled {
-    background: #f1f5f9;
-    color: #94a3b8;
-    cursor: not-allowed;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 `;
 
-const PriceInfo = styled.div`
+const PriceRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 0;
-  border-top: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
-  margin: 1rem 0;
+  padding: 0.5rem 0;
+  ${(props) => props.$border && "border-bottom: 1px solid #e2e8f0;"}
 
   span:first-child {
     color: #64748b;
@@ -283,15 +259,36 @@ const PriceInfo = styled.div`
   }
 
   span:last-child {
+    font-weight: 600;
+    color: #0f172a;
+  }
+`;
+
+const TotalPrice = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  padding-top: 1rem;
+  border-top: 2px solid #0284c7;
+
+  span:first-child {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  span:last-child {
     font-size: 1.5rem;
     font-weight: 900;
-    color: #2563eb;
+    color: #0284c7;
   }
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
   gap: 1rem;
+  margin-top: 1rem;
 `;
 
 const Button = styled.button`
@@ -310,20 +307,21 @@ const Button = styled.button`
   }
 `;
 
-const BookButton = styled(Button)`
-  background: #2563eb;
+const RentButton = styled(Button)`
+  background: #0284c7;
   color: white;
 
   &:hover:not(:disabled) {
-    background: #1d4ed8;
+    background: #0369a1;
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
   }
 `;
 
 const CancelButton = styled(Button)`
   background: transparent;
-  color: #2563eb;
-  border: 1px solid #2563eb;
+  color: #0284c7;
+  border: 1px solid #0284c7;
 
   &:hover:not(:disabled) {
     background: #f0f9ff;
@@ -331,7 +329,7 @@ const CancelButton = styled(Button)`
 `;
 
 const Message = styled.div`
-  padding: 0.875rem 1rem;
+  padding: 1rem;
   border-radius: 8px;
   font-size: 0.9rem;
   margin-bottom: 1rem;
@@ -359,74 +357,86 @@ const getAmenityIcon = (amenity) => {
   return <Home size={18} />;
 };
 
-const RoomDetailsModal = ({ room, onClose, onBookingSuccess }) => {
-  const user = getStoredUser();
+const RoomDetailsModal = ({ room, onClose }) => {
+  const [showRentalForm, setShowRentalForm] = useState(false);
+  const [months, setMonths] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [formData, setFormData] = useState({
-    moveInDate: "",
-    moveOutDate: "",
-    message: "",
-  });
+  const [message, setMessage] = useState({ type: "", text: "" });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    setError("");
-  };
+  const totalPrice = Math.max(1, months) * room.price;
 
-  const calculatePrice = () => {
-    if (!formData.moveInDate || !formData.moveOutDate) return 0;
-    const checkIn = new Date(formData.moveInDate);
-    const checkOut = new Date(formData.moveOutDate);
-    const days = Math.max(0, (checkOut - checkIn) / (1000 * 60 * 60 * 24));
-    return Math.ceil(days * room.price);
-  };
-
-  const handleSubmitBooking = async (e) => {
+  const handleRent = async (e) => {
     e.preventDefault();
 
-    if (!user) {
-      setError("Please log in to make a booking");
-      return;
-    }
-
-    if (!formData.moveInDate || !formData.moveOutDate) {
-      setError("Please select check-in and check-out dates");
-      return;
-    }
-
-    const checkIn = new Date(formData.moveInDate);
-    const checkOut = new Date(formData.moveOutDate);
-
-    if (checkOut <= checkIn) {
-      setError("Check-out date must be after check-in date");
+    if (months < 1) {
+      setMessage({ type: "error", text: "Minimum rental period is 1 month" });
       return;
     }
 
     try {
       setLoading(true);
-      setError("");
+      setMessage({ type: "", text: "" });
 
-      const bookingData = {
+      const rentalData = {
         roomId: room.id,
-        moveInDate: formData.moveInDate,
-        moveOutDate: formData.moveOutDate,
-        message: formData.message,
+        months: parseInt(months),
+        totalPrice: totalPrice,
       };
 
-      await bookingsAPI.createBooking(bookingData);
-      setSuccess("Booking request submitted successfully!");
-      setTimeout(() => {
-        onBookingSuccess();
-        onClose();
-      }, 1500);
+      // Step 1: Create rental
+      const rentalResponse = await fetch(
+        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/rentals`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(rentalData),
+        },
+      );
+
+      const rentalDataResponse = await rentalResponse.json();
+
+      if (!rentalResponse.ok) {
+        throw new Error(
+          rentalDataResponse.message || "Failed to submit rental request",
+        );
+      }
+
+      const bookingId = rentalDataResponse.booking?.id;
+
+      if (!bookingId) {
+        throw new Error("Failed to retrieve booking ID from rental response");
+      }
+
+      setMessage({
+        type: "success",
+        text: "✓ Rental created! Redirecting to payment...",
+      });
+
+      // Step 2: Initiate payment
+      try {
+        const paymentResponse = await paymentsAPI.initiatePayment({
+          bookingId: bookingId,
+          amount: totalPrice,
+          roomId: room.id,
+        });
+
+        if (paymentResponse && paymentResponse.payment_url) {
+          // Redirect to eSewa payment page
+          window.location.href = paymentResponse.payment_url;
+        } else {
+          throw new Error("Failed to get eSewa payment URL");
+        }
+      } catch (paymentErr) {
+        setMessage({
+          type: "error",
+          text: `Payment initiation failed: ${paymentErr.message}. Your rental has been created but payment is pending.`,
+        });
+      }
     } catch (err) {
-      setError(err.message || "Failed to submit booking");
+      setMessage({ type: "error", text: err.message });
     } finally {
       setLoading(false);
     }
@@ -496,14 +506,6 @@ const RoomDetailsModal = ({ room, onClose, onBookingSuccess }) => {
             </DetailCard>
 
             <DetailCard>
-              <Home size={20} />
-              <DetailText>
-                <span>Area</span>
-                <span>{room.area} sq ft</span>
-              </DetailText>
-            </DetailCard>
-
-            <DetailCard>
               <span style={{ fontSize: "1.2rem", fontWeight: 700 }}>
                 Rs {room.price.toLocaleString()}
               </span>
@@ -530,88 +532,103 @@ const RoomDetailsModal = ({ room, onClose, onBookingSuccess }) => {
             </AmenitiesSection>
           )}
 
-          {user ? (
-            <BookingSection>
-              <BookingTitle>Book This Room</BookingTitle>
+          {!showRentalForm ? (
+            <RentalSection>
+              <RentalTitle>Ready to rent this room?</RentalTitle>
+              <p style={{ color: "#64748b", marginBottom: "1.5rem" }}>
+                Click below to proceed with rental. You'll need to pay the
+                entire rental amount in advance through eSewa.
+              </p>
+              <RentButton
+                onClick={() => setShowRentalForm(true)}
+                style={{ width: "100%" }}
+              >
+                💰 Rent This Room
+              </RentButton>
+            </RentalSection>
+          ) : (
+            <RentalSection>
+              <RentalTitle>Rental Details</RentalTitle>
 
-              {error && <Message $type="error">{error}</Message>}
-              {success && <Message $type="success">{success}</Message>}
+              {message.text && (
+                <Message $type={message.type}>{message.text}</Message>
+              )}
 
-              <Form onSubmit={handleSubmitBooking}>
-                <FormRow>
-                  <FormGroup>
-                    <Label htmlFor="moveInDate">Check-in Date</Label>
-                    <Input
-                      id="moveInDate"
-                      type="date"
-                      name="moveInDate"
-                      value={formData.moveInDate}
-                      onChange={handleInputChange}
-                      min={new Date().toISOString().split("T")[0]}
-                      disabled={loading}
-                    />
-                  </FormGroup>
-
-                  <FormGroup>
-                    <Label htmlFor="moveOutDate">Check-out Date</Label>
-                    <Input
-                      id="moveOutDate"
-                      type="date"
-                      name="moveOutDate"
-                      value={formData.moveOutDate}
-                      onChange={handleInputChange}
-                      min={new Date().toISOString().split("T")[0]}
-                      disabled={loading}
-                    />
-                  </FormGroup>
-                </FormRow>
-
+              <RentalForm onSubmit={handleRent}>
                 <FormGroup>
-                  <Label htmlFor="message">Message to Owner (Optional)</Label>
-                  <TextArea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    placeholder="Tell the owner about yourself or ask any questions..."
+                  <Label htmlFor="months">
+                    Number of Months <span style={{ color: "#e11d48" }}>*</span>
+                  </Label>
+                  <Input
+                    id="months"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={months}
+                    onChange={(e) =>
+                      setMonths(Math.max(1, parseInt(e.target.value) || 1))
+                    }
                     disabled={loading}
+                    required
                   />
+                  <p
+                    style={{
+                      fontSize: "0.85rem",
+                      color: "#64748b",
+                      margin: "0",
+                    }}
+                  >
+                    Minimum rental period: 1 month
+                  </p>
                 </FormGroup>
 
-                {formData.moveInDate && formData.moveOutDate && (
-                  <PriceInfo>
-                    <span>Estimated Total Price:</span>
-                    <span>Rs {calculatePrice().toLocaleString()}</span>
-                  </PriceInfo>
-                )}
+                <PriceCalculation>
+                  <PriceRow>
+                    <span>Monthly Rate:</span>
+                    <span>Rs {room.price.toLocaleString()}</span>
+                  </PriceRow>
+                  <PriceRow $border>
+                    <span>Duration:</span>
+                    <span>
+                      {months} month{months !== 1 ? "s" : ""}
+                    </span>
+                  </PriceRow>
+                  <TotalPrice>
+                    <span>Total (Due in Advance):</span>
+                    <span>Rs {totalPrice.toLocaleString()}</span>
+                  </TotalPrice>
+                </PriceCalculation>
+
+                <p
+                  style={{
+                    color: "#7c3aed",
+                    fontSize: "0.9rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  ℹ️ You must pay {months} month{months !== 1 ? "s" : ""} of
+                  rent in advance ({months} × Rs {room.price.toLocaleString()} =
+                  Rs {totalPrice.toLocaleString()})
+                </p>
 
                 <ButtonGroup>
                   <CancelButton
                     type="button"
-                    onClick={onClose}
+                    onClick={() => {
+                      setShowRentalForm(false);
+                      setMessage({ type: "", text: "" });
+                      setMonths(1);
+                    }}
                     disabled={loading}
                   >
-                    Cancel
+                    Back
                   </CancelButton>
-                  <BookButton type="submit" disabled={loading}>
-                    {loading ? "Submitting..." : "Submit Booking Request"}
-                  </BookButton>
+                  <RentButton type="submit" disabled={loading}>
+                    {loading ? "Processing payment..." : "💳 Pay for Room"}
+                  </RentButton>
                 </ButtonGroup>
-              </Form>
-            </BookingSection>
-          ) : (
-            <BookingSection>
-              <Message $type="error">
-                Please{" "}
-                <a
-                  href="/login"
-                  style={{ textDecoration: "underline", fontWeight: "bold" }}
-                >
-                  log in
-                </a>{" "}
-                to make a booking.
-              </Message>
-            </BookingSection>
+              </RentalForm>
+            </RentalSection>
           )}
         </Content>
       </Modal>
