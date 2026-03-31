@@ -139,11 +139,11 @@ const LoginPage = () => {
         return;
       }
 
-      // Tenant/Client: return to intended room if available
+      // Tenant/tenant: return to intended room if available
       if (returnTo) {
         navigate(returnTo, { replace: true });
       } else {
-        navigate("/client/dashboard", { replace: true });
+        navigate("/tenant/dashboard", { replace: true });
       }
     } catch (err) {
       setError(err?.message || "Login failed.");
@@ -193,3 +193,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+

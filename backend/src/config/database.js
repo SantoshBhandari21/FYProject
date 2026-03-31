@@ -75,7 +75,7 @@ const initDatabase = () => {
     CREATE TABLE IF NOT EXISTS bookings (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       room_id INTEGER NOT NULL,
-      client_id INTEGER NOT NULL,
+      tenant_id INTEGER NOT NULL,
       owner_id INTEGER NOT NULL,
       booking_date DATE NOT NULL,
       move_in_date DATE NOT NULL,
@@ -86,7 +86,7 @@ const initDatabase = () => {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
-      FOREIGN KEY (client_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (tenant_id) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
     )
   `);
@@ -96,12 +96,12 @@ const initDatabase = () => {
     CREATE TABLE IF NOT EXISTS reviews (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       room_id INTEGER NOT NULL,
-      client_id INTEGER NOT NULL,
+      tenant_id INTEGER NOT NULL,
       rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
       comment TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
-      FOREIGN KEY (client_id) REFERENCES users(id) ON DELETE CASCADE
+      FOREIGN KEY (tenant_id) REFERENCES users(id) ON DELETE CASCADE
     )
   `);
 
@@ -109,12 +109,12 @@ const initDatabase = () => {
   db.run(`
     CREATE TABLE IF NOT EXISTS favorites (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      client_id INTEGER NOT NULL,
+      tenant_id INTEGER NOT NULL,
       room_id INTEGER NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (client_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (tenant_id) REFERENCES users(id) ON DELETE CASCADE,
       FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
-      UNIQUE(client_id, room_id)
+      UNIQUE(tenant_id, room_id)
     )
   `);
 

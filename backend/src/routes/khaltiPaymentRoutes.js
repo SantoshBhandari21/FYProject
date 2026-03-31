@@ -9,7 +9,7 @@ const authMiddleware = require("../middleware/auth");
 router.post(
   "/initiate",
   authMiddleware.authenticate,
-  authMiddleware.authorize("client"),
+  authMiddleware.authorize("tenant"),
   khaltiPaymentController.initiatePayment,
 );
 
@@ -20,7 +20,7 @@ router.get("/verify", khaltiPaymentController.verifyPayment);
 router.get(
   "/my-payments",
   authMiddleware.authenticate,
-  authMiddleware.authorize("client"),
+  authMiddleware.authorize("tenant"),
   khaltiPaymentController.getMyPayments,
 );
 
@@ -39,3 +39,4 @@ router.get(
 );
 
 module.exports = router;
+

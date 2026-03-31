@@ -154,7 +154,7 @@ const RoleBadge = styled.span`
         return "#fee2e2";
       case "owner":
         return "#fef3c7";
-      case "client":
+      case "tenant":
         return "#dcfce7";
       default:
         return "#f1f5f9";
@@ -166,7 +166,7 @@ const RoleBadge = styled.span`
         return "#991b1b";
       case "owner":
         return "#92400e";
-      case "client":
+      case "tenant":
         return "#166534";
       default:
         return "#475569";
@@ -386,3 +386,4 @@ const ProfilePage = () => {
 };
 
 export default ProfilePage;
+

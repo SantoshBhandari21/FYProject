@@ -76,7 +76,8 @@ const NavButton = styled.button`
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const user = localStorage.getItem("user");
+  const userJson = localStorage.getItem("user");
+  const user = userJson ? JSON.parse(userJson) : null;
 
   return (
     <Nav>
@@ -87,7 +88,12 @@ const Navbar = () => {
 
       <NavLinks>
         {user ? (
-          <NavButton onClick={() => navigate("/logout")}>Logout</NavButton>
+          <>
+            {user.role === "tenant" && (
+              <NavLink to="/tenant/dashboard">Dashboard</NavLink>
+            )}
+            <NavButton onClick={() => navigate("/logout")}>Logout</NavButton>
+          </>
         ) : (
           <>
             <NavLink to="/BrowseRooms">Login</NavLink>

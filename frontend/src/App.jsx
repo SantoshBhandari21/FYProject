@@ -20,7 +20,7 @@ import ContactPage from "./pages/ContactPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import OwnerLayout from "./components/OwnerLayout";
-import ClientDashboard from "./pages/ClientDashboard";
+import TenantDashboard from "./pages/TenantDashboard";
 import ProfilePage from "./pages/ProfilePage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailed from "./pages/PaymentFailed";
@@ -72,7 +72,7 @@ function App() {
               <Route path="/owner/*" element={<OwnerLayout />}>
                 <Route path="dashboard" element={<OwnerDashboard />} />
               </Route>
-              <Route path="/tenant/dashboard" element={<ClientDashboard />} />
+              <Route path="/tenant/dashboard" element={<TenantDashboard />} />
 
               {/* 404 */}
               <Route

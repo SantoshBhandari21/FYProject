@@ -261,28 +261,45 @@ const MobileLogoutBtn = styled.button`
 `;
 
 const ProfileIcon = styled(Link)`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #2563eb;
-  color: white;
+  color: #64748b;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-decoration: none;
-  font-size: 18px;
-  font-weight: bold;
-  transition: all 0.2s ease;
-  overflow: hidden;
+  gap: 6px;
   &:hover {
-    background: #1d4ed8;
-    transform: scale(1.1);
+    color: #2563eb;
+    background-color: #f8fafc;
   }
+  &.active {
+    color: #2563eb;
+    background-color: #eff6ff;
+  }
+`;
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+const NotificationIconBtn = styled.button`
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 15px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  position: relative;
+  &:hover {
+    color: #2563eb;
+    background-color: #f8fafc;
   }
 `;
 
@@ -343,7 +360,6 @@ const Header = () => {
 
   const isActive = (path) => (pathname === path ? "active" : "");
   const isMobile = () => setOpen(false);
-  const profileChar = user?.full_name?.[0]?.toUpperCase() || "U";
 
   return (
     <HeaderWrapper>
@@ -356,6 +372,21 @@ const Header = () => {
               {label}
             </NavLink>
           ))}
+          {user?.role === "tenant" && (
+            <>
+              <NavLink
+                to="/tenant/dashboard"
+                className={isActive("/tenant/dashboard")}
+              >
+                Tenant Dashboard
+              </NavLink>
+              <NotificationBell isNav={true} />
+              <ProfileIcon to="/profile" title="Profile">
+                <i className="fa-solid fa-circle-user"></i>
+                Profile
+              </ProfileIcon>
+            </>
+          )}
         </Nav>
 
         <NavActions>
@@ -370,10 +401,6 @@ const Header = () => {
             </>
           ) : (
             <>
-              <NotificationBell />
-              <ProfileIcon to="/profile" title="Profile">
-                <i className="fa-solid fa-circle-user"></i>
-              </ProfileIcon>
               <LogoutBtn onClick={handleLogout}>Logout</LogoutBtn>
             </>
           )}
@@ -400,6 +427,15 @@ const Header = () => {
               {label}
             </MobileLink>
           ))}
+          {user?.role === "tenant" && (
+            <MobileLink
+              to="/tenant/dashboard"
+              className={isActive("/tenant/dashboard")}
+              onClick={isMobile}
+            >
+              Tenant Dashboard
+            </MobileLink>
+          )}
         </MobileNav>
 
         <MobileActions>
@@ -414,9 +450,11 @@ const Header = () => {
             </>
           ) : (
             <>
-              <MobileProfileIcon to="/profile" onClick={isMobile}>
-                <i className="fa-solid fa-circle-user"></i> Profile
-              </MobileProfileIcon>
+              {user?.role === "tenant" && (
+                <MobileProfileIcon to="/profile" onClick={isMobile}>
+                  <i className="fa-solid fa-circle-user"></i> Profile
+                </MobileProfileIcon>
+              )}
               <MobileLogoutBtn
                 onClick={() => {
                   handleLogout();

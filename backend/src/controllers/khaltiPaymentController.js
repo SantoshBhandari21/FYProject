@@ -37,7 +37,7 @@ exports.initiatePayment = (req, res) => {
 
     // Check if booking exists and belongs to user
     db.get(
-      "SELECT * FROM bookings WHERE id = ? AND client_id = ?",
+      "SELECT * FROM bookings WHERE id = ? AND tenant_id = ?",
       [bookingId, userId],
       async (err, booking) => {
         if (err) {
@@ -238,7 +238,7 @@ exports.verifyPayment = (req, res) => {
                   const notificationSql = `
                     INSERT INTO notifications (user_id, type, title, message, booking_id, is_read)
                     VALUES (
-                      (SELECT client_id FROM bookings WHERE id = ?),
+                      (SELECT tenant_id FROM bookings WHERE id = ?),
                       'booking_approved',
                       'Rental Booking Confirmed',
                       'Your rental booking has been confirmed after payment',

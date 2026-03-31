@@ -36,12 +36,12 @@ The platform features a secure authentication system, payment integration via Kh
 ### **Frontend**
 - **React 18.2** - UI library for building interactive user interfaces
 - **Vite 7.1** - Fast build tool and development server
-- **React Router DOM 7.9** - Client-side routing and navigation
+- **React Router DOM 7.9** - tenant-side routing and navigation
 - **Styled Components 6.0** - CSS-in-JS for component styling
 - **Tailwind CSS 4.1** - Utility-first CSS framework
 - **Lucide React** - Modern icon library
 - **React Icons** - Ionicons icon package
-- **Axios** - HTTP client for API requests
+- **Axios** - HTTP tenant for API requests
 - **ESLint** - Code quality and linting
 
 ### **Backend**
@@ -568,3 +568,4 @@ For issues, questions, or contributions, please contact the development team.
 ---
 
 **Happy Renting! 🏠**
+

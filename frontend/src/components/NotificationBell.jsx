@@ -6,28 +6,46 @@ const BellContainer = styled.div`
   position: relative;
 `;
 
-const BellIcon = styled.div`
-  font-size: 24px;
+const BellIcon = styled.button`
+  background: none;
+  border: none;
+  color: ${(props) => (props.$isNav ? "#64748b" : "inherit")};
+  font-size: ${(props) => (props.$isNav ? "15px" : "24px")};
+  padding: ${(props) => (props.$isNav ? "8px 14px" : "0")};
+  border-radius: ${(props) => (props.$isNav ? "6px" : "0")};
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: ${(props) => (props.$isNav ? "6px" : "0")};
   flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: ${(props) => (props.$isNav ? "500" : "normal")};
+
+  ${(props) =>
+    props.$isNav &&
+    `
+    &:hover {
+      color: #2563eb;
+      background-color: #f8fafc;
+    }
+  `}
 `;
 
 const Badge = styled.span`
   position: absolute;
-  top: 0;
-  right: 0;
+  top: ${(props) => (props.$isNav ? "-4px" : "0")};
+  right: ${(props) => (props.$isNav ? "2px" : "0")};
   background-color: #ef4444;
   color: white;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: ${(props) => (props.$isNav ? "16px" : "20px")};
+  height: ${(props) => (props.$isNav ? "16px" : "20px")};
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: ${(props) => (props.$isNav ? "10px" : "12px")};
   font-weight: bold;
 `;
 
@@ -176,10 +194,14 @@ const formatTime = (dateString) => {
   return date.toLocaleDateString();
 };
 
-const NotificationBell = ({ isOpen, setIsOpen }) => {
+const NotificationBell = ({ isNav = false, isOpen, setIsOpen }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [localOpen, setLocalOpen] = useState(false);
   const containerRef = useRef(null);
+
+  const open = isNav ? localOpen : isOpen;
+  const setOpen = isNav ? setLocalOpen : setIsOpen;
 
   useEffect(() => {
     fetchNotifications();
@@ -195,16 +217,16 @@ const NotificationBell = ({ isOpen, setIsOpen }) => {
         containerRef.current &&
         !containerRef.current.contains(event.target)
       ) {
-        setIsOpen(false);
+        setOpen(false);
       }
     };
 
-    if (isOpen) {
+    if (open) {
       document.addEventListener("mousedown", handleClickOutside);
       return () =>
         document.removeEventListener("mousedown", handleClickOutside);
     }
-  }, [isOpen, setIsOpen]);
+  }, [open, setOpen]);
 
   const fetchNotifications = async () => {
     try {
@@ -247,14 +269,19 @@ const NotificationBell = ({ isOpen, setIsOpen }) => {
 
   return (
     <BellContainer ref={containerRef}>
-      <BellIcon title="Notifications">
+      <BellIcon
+        $isNav={isNav}
+        onClick={() => setOpen(!open)}
+        title="Notifications"
+      >
         <i className="fa-regular fa-bell"></i>
         {unreadCount > 0 && (
-          <Badge>{unreadCount > 9 ? "9+" : unreadCount}</Badge>
+          <Badge $isNav={isNav}>{unreadCount > 9 ? "9+" : unreadCount}</Badge>
         )}
+        {isNav && <span>Notifications</span>}
       </BellIcon>
 
-      <NotificationDropdown $isOpen={isOpen}>
+      <NotificationDropdown $isOpen={open}>
         <NotificationHeader>
           <NotificationTitle>Notifications</NotificationTitle>
           {unreadCount > 0 && (

@@ -96,7 +96,7 @@ exports.createRental = (req, res) => {
   }
 };
 
-// Get my rentals (as client/tenant)
+// Get my rentals (as tenant/tenant)
 exports.getMyRentals = (req, res) => {
   try {
     const clientId = req.user.id;
@@ -207,3 +207,4 @@ exports.getRentalById = (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+

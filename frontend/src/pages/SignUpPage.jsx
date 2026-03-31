@@ -132,7 +132,7 @@ const SignUpPage = () => {
   const [params] = useSearchParams();
 
   const type = (params.get("type") || "").toLowerCase();
-  const defaultRole = type === "owner" ? "owner" : "client";
+  const defaultRole = type === "owner" ? "owner" : "tenant";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -205,7 +205,7 @@ const SignUpPage = () => {
           />
 
           <Select value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="client">Tenant</option>
+            <option value="tenant">Tenant</option>
             <option value="owner">Owner</option>
           </Select>
 
@@ -224,3 +224,4 @@ const SignUpPage = () => {
 };
 
 export default SignUpPage;
+

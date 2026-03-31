@@ -25,10 +25,10 @@ const register = async (req, res) => {
       });
     }
 
-    const validRoles = ["admin", "owner", "client"];
+    const validRoles = ["admin", "owner", "tenant"];
     if (!validRoles.includes(role)) {
       return res.status(400).json({
-        message: "Invalid role. Must be admin, owner, or client",
+        message: "Invalid role. Must be admin, owner, or tenant",
       });
     }
 
@@ -281,3 +281,4 @@ module.exports = {
   updateProfile,
   updateProfilePhoto,
 };
+

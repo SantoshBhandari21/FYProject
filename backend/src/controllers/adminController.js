@@ -90,14 +90,14 @@ const getUserById = async (req, res) => {
       );
 
       stats = { ...(roomStats || {}), ...(bookingStats || {}) };
-    } else if (user.role === "client") {
+    } else if (user.role === "tenant") {
       const bookingStats = await getOne(
-        "SELECT COUNT(*) as total_bookings FROM bookings WHERE client_id = ?",
+        "SELECT COUNT(*) as total_bookings FROM bookings WHERE tenant_id = ?",
         [user.id]
       );
 
       const favoriteStats = await getOne(
-        "SELECT COUNT(*) as total_favorites FROM favorites WHERE client_id = ?",
+        "SELECT COUNT(*) as total_favorites FROM favorites WHERE tenant_id = ?",
         [user.id]
       );
 
@@ -124,7 +124,7 @@ const createUser = async (req, res) => {
       });
     }
 
-    const validRoles = ["admin", "owner", "client"];
+    const validRoles = ["admin", "owner", "tenant"];
     if (!validRoles.includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
@@ -172,7 +172,7 @@ const updateUser = async (req, res) => {
       values.push(email);
     }
     if (role) {
-      const validRoles = ["admin", "owner", "client"];
+      const validRoles = ["admin", "owner", "tenant"];
       if (!validRoles.includes(role)) {
         return res.status(400).json({ message: "Invalid role" });
       }
