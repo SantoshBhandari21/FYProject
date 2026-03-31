@@ -24,8 +24,8 @@ const registerValidation = [
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters"),
   body("role")
-    .isIn(["admin", "owner", "client"])
-    .withMessage("Role must be admin, owner, or client"),
+    .isIn(["admin", "owner", "tenant"])
+    .withMessage("Role must be admin, owner, or tenant"),
 ];
 
 // Login validation (matches frontend)

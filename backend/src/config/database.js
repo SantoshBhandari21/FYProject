@@ -28,7 +28,7 @@ const initDatabase = () => {
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
       profile_photo TEXT,
-      role TEXT NOT NULL CHECK(role IN ('admin', 'owner', 'client')),
+      role TEXT NOT NULL CHECK(role IN ('admin', 'owner', 'tenant')),
       is_verified INTEGER DEFAULT 0,
       is_active INTEGER DEFAULT 1,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -225,7 +225,7 @@ const seedDatabase = () => {
       full_name: "Tenant User",
       email: "tenant@gmail.com",
       password: "qwerty",
-      role: "client",
+      role: "tenant",
     },
   ];
 

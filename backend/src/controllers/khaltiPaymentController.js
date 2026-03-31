@@ -369,7 +369,7 @@ exports.getPaymentByBooking = (req, res) => {
   }
 };
 
-// Get all payments for logged-in user (client)
+// Get all payments for logged-in user (tenant)
 exports.getMyPayments = (req, res) => {
   try {
     const userId = req.user.id;

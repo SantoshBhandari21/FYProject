@@ -7,9 +7,9 @@ const ClientDashboard = () => {
   const [activeTab, setActiveTab] = useState("rentals");
 
   return (
-    <div className="client-dashboard">
+    <div className="tenant-dashboard">
       <div className="dashboard-header">
-        <h1>Client Dashboard</h1>
+        <h1>Tenant Dashboard</h1>
         <p>Manage your room rentals and view payment receipts</p>
       </div>
 

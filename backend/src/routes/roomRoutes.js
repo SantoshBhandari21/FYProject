@@ -25,8 +25,8 @@ router.post(
   createRoom,
 );
 
-// Client routes - Favorites - MUST come before :id routes
-router.get("/user/favorites", authenticate, authorize("client"), getFavorites);
+// Tenant routes - Favorites - MUST come before :id routes
+router.get("/user/favorites", authenticate, authorize("tenant"), getFavorites);
 
 // Public routes
 router.get("/", getRooms);
@@ -41,11 +41,11 @@ router.put(
   updateRoom,
 );
 router.delete("/:id", authenticate, authorize("owner"), deleteRoom);
-router.post("/:id/favorite", authenticate, authorize("client"), addToFavorites);
+router.post("/:id/favorite", authenticate, authorize("tenant"), addToFavorites);
 router.delete(
   "/:id/favorite",
   authenticate,
-  authorize("client"),
+  authorize("tenant"),
   removeFromFavorites,
 );
 

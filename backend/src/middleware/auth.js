@@ -73,10 +73,10 @@ const isOwner = (req, res, next) => {
   next();
 };
 
-// Check if user is client
-const isClient = (req, res, next) => {
-  if (req.user.role !== 'client') {
-    return res.status(403).json({ message: 'Client access required' });
+// Check if user is tenant
+const isTenant = (req, res, next) => {
+  if (req.user.role !== 'tenant') {
+    return res.status(403).json({ message: 'Tenant access required' });
   }
   next();
 };
@@ -86,5 +86,5 @@ module.exports = {
   authorize,
   isAdmin,
   isOwner,
-  isClient
+  isTenant
 };

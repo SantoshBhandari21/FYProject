@@ -9,9 +9,9 @@ const {
   getRentalById,
 } = require("../controllers/rentalController");
 
-// Client routes
-router.post("/", authenticate, authorize("client"), createRental);
-router.get("/my-rentals", authenticate, authorize("client"), getMyRentals);
+// Tenant routes
+router.post("/", authenticate, authorize("tenant"), createRental);
+router.get("/my-rentals", authenticate, authorize("tenant"), getMyRentals);
 router.get("/requests", authenticate, authorize("owner"), getRentalRequests);
 
 // Get rental details

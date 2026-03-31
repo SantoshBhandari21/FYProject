@@ -63,7 +63,7 @@ export default function AdminDashboard() {
       (u) => normalizeRole(u.role) === "owner",
     ).length;
     const tenants = users.filter((u) =>
-      ["tenant", "client", "user"].includes(normalizeRole(u.role)),
+      ["tenant"].includes(normalizeRole(u.role)),
     ).length;
 
     return { total, admins, owners, tenants };

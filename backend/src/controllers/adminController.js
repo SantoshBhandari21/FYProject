@@ -275,8 +275,8 @@ const getAdminStats = async (req, res) => {
     const rowOwners = await getOne("SELECT COUNT(*) as total_owners FROM users WHERE role = ?", [
       "owner",
     ]);
-    const rowClients = await getOne("SELECT COUNT(*) as total_clients FROM users WHERE role = ?", [
-      "client",
+    const rowTenants = await getOne("SELECT COUNT(*) as total_tenants FROM users WHERE role = ?", [
+      "tenant",
     ]);
 
     const rowRooms = await getOne("SELECT COUNT(*) as total_rooms FROM rooms");
@@ -306,7 +306,7 @@ const getAdminStats = async (req, res) => {
           total: rowUsers?.total_users ?? 0,
           admins: rowAdmins?.total_admins ?? 0,
           owners: rowOwners?.total_owners ?? 0,
-          clients: rowClients?.total_clients ?? 0,
+          tenants: rowTenants?.total_tenants ?? 0,
         },
         rooms: {
           total: rowRooms?.total_rooms ?? 0,

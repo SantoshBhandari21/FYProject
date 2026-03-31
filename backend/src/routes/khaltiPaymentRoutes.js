@@ -16,7 +16,7 @@ router.post(
 // Verify payment - callback from Khalti (no authentication required)
 router.get("/verify", khaltiPaymentController.verifyPayment);
 
-// Get all my payments (client) - must be before /:bookingId route
+// Get all my payments (tenant) - must be before /:bookingId route
 router.get(
   "/my-payments",
   authMiddleware.authenticate,

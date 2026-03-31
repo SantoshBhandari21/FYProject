@@ -412,7 +412,7 @@ const PaymentSuccess = () => {
               const token = localStorage.getItem("token");
               const user = localStorage.getItem("user");
               if (token && user) {
-                navigate("/client-dashboard");
+                navigate("/tenant-dashboard");
               } else {
                 // If token is missing, redirect to login
                 setStatus("error");

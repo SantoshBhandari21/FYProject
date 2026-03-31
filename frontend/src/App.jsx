@@ -72,7 +72,7 @@ function App() {
               <Route path="/owner/*" element={<OwnerLayout />}>
                 <Route path="dashboard" element={<OwnerDashboard />} />
               </Route>
-              <Route path="/client/dashboard" element={<ClientDashboard />} />
+              <Route path="/tenant/dashboard" element={<ClientDashboard />} />
 
               {/* 404 */}
               <Route
