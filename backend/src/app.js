@@ -5,7 +5,6 @@ const path = require("path");
 
 const app = express();
 
-// ✅ Middleware: CORS
 // Allow requests from local dev and Cloudflare tunnel frontend
 const allowedOrigins = [
   process.env.CLIENT_URL || "http://localhost:3000",
@@ -31,16 +30,16 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const rentalRoutes = require("./routes/rentalRoutes");
-const paymentRoutes = require("./routes/paymentRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const khaltiPaymentRoutes = require("./routes/khaltiPaymentRoutes");
 
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/rentals", rentalRoutes);
-app.use("/api/payments", paymentRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/payments", khaltiPaymentRoutes);
 
 // Health check route
 app.get("/api/health", (req, res) => {

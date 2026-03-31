@@ -54,23 +54,28 @@ const OwnerDashboard = () => {
   const handleSubmitRoom = async (formData) => {
     try {
       console.log("Submitting room, editing:", !!editingRoom);
+      let result;
       if (editingRoom) {
         console.log("Updating room:", editingRoom.id);
-        await roomAPI.updateRoom(editingRoom.id, formData);
+        result = await roomAPI.updateRoom(editingRoom.id, formData);
         console.log("Room updated successfully");
+        setShowModal(false);
+        setEditingRoom(null);
+        setError("");
+        await fetchMyRooms();
       } else {
         console.log("Creating new room");
-        await roomAPI.createRoom(formData);
-        console.log("Room created successfully");
+        result = await roomAPI.createRoom(formData);
+        console.log("Room created successfully", result);
+        setError("");
+        await fetchMyRooms();
       }
-      setShowModal(false);
-      setEditingRoom(null);
-      setError("");
-      await fetchMyRooms();
+      return result;
     } catch (err) {
       const errorMsg = err.message || "Failed to save room";
       console.error("Save room error:", errorMsg, err);
       setError(errorMsg);
+      throw err;
     }
   };
 

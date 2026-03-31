@@ -3,33 +3,42 @@ import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { CheckCircle, AlertCircle } from "lucide-react";
 
-const Container = styled.div`
+const Page = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f1f5f9;
+  padding: 32px 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+`;
+
+const Container = styled.div`
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 `;
 
 const Card = styled.div`
   background: white;
-  border-radius: 16px;
-  padding: 3rem 2rem;
-  max-width: 500px;
-  width: 100%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 32px;
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.06);
   text-align: center;
 
   @media (max-width: 768px) {
-    padding: 2rem 1.5rem;
+    padding: 24px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px;
   }
 `;
 
 const IconWrapper = styled.div`
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 1.5rem;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 24px;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   border-radius: 50%;
   display: flex;
@@ -37,95 +46,204 @@ const IconWrapper = styled.div`
   justify-content: center;
 
   svg {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     color: white;
+  }
+
+  @media (max-width: 480px) {
+    width: 80px;
+    height: 80px;
+
+    svg {
+      width: 40px;
+      height: 40px;
+    }
   }
 `;
 
 const Title = styled.h1`
-  margin: 0 0 0.5rem;
-  font-size: 2rem;
-  font-weight: 700;
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 900;
   color: #0f172a;
 
   @media (max-width: 768px) {
-    font-size: 1.5rem;
+    font-size: 24px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 20px;
   }
 `;
 
 const Subtitle = styled.p`
-  color: #64748b;
-  font-size: 1rem;
-  margin: 0 0 2rem;
+  color: #475569;
+  font-size: 15px;
+  margin: 0 0 24px;
   line-height: 1.6;
+
+  @media (max-width: 480px) {
+    margin: 0 0 20px;
+    font-size: 14px;
+  }
 `;
 
 const InfoBox = styled.div`
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 2rem;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 20px;
   text-align: left;
 
   p {
-    margin: 0.5rem 0;
+    margin: 8px 0;
     color: #166534;
-    font-size: 0.9rem;
+    font-size: 14px;
+    line-height: 1.5;
 
     strong {
       font-weight: 700;
     }
   }
+
+  @media (max-width: 480px) {
+    padding: 14px;
+    margin-bottom: 16px;
+
+    p {
+      font-size: 13px;
+    }
+  }
 `;
 
-const ErrorBox = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 2rem;
-  text-align: left;
+const RoomDetailsBox = styled(InfoBox)`
+  background: #eff6ff;
+  border-color: #bfdbfe;
 
   p {
-    margin: 0.5rem 0;
-    color: #991b1b;
-    font-size: 0.9rem;
+    color: #1e40af;
+
+    &:first-child {
+      margin-bottom: 12px;
+      font-weight: 700;
+      font-size: 15px;
+    }
+  }
+`;
+
+const PaymentReceiptBox = styled(InfoBox)`
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+
+  p {
+    color: #166534;
+
+    &:first-child {
+      margin-bottom: 12px;
+      font-weight: 700;
+      font-size: 15px;
+    }
+  }
+`;
+
+const SuccessMessage = styled(Subtitle)`
+  margin-top: 20px;
+  margin-bottom: 24px;
+  color: #059669;
+  font-weight: 700;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 12px;
+
+  @media (max-width: 480px) {
+    gap: 10px;
   }
 `;
 
 const Button = styled.button`
   display: inline-block;
-  padding: 0.875rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: all 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
   }
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
+  }
+
+  @media (max-width: 480px) {
+    padding: 11px 20px;
+    font-size: 14px;
+  }
+`;
+
+const SecondaryButton = styled(Button)`
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+
+  &:hover {
+    box-shadow: 0 8px 20px rgba(107, 114, 128, 0.3);
+  }
+`;
+
+const ErrorTitle = styled(Title)`
+  color: #991b1b;
+`;
+
+const ErrorSubtitle = styled(Subtitle)`
+  color: #991b1b;
+`;
+
+const ErrorIconWrapper = styled(IconWrapper)`
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+`;
+
+const ErrorBox = styled.div`
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: left;
+
+  p {
+    margin: 8px 0;
+    color: #991b1b;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 480px) {
+    padding: 14px;
+    margin-bottom: 16px;
+
+    p {
+      font-size: 13px;
+    }
   }
 `;
 
 const LoadingSpinner = styled.div`
-  width: 40px;
-  height: 40px;
-  margin: 1rem auto;
+  width: 50px;
+  height: 50px;
+  margin: 16px auto 24px;
   border: 4px solid #e2e8f0;
-  border-top: 4px solid #667eea;
+  border-top: 4px solid #2563eb;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 
@@ -134,6 +252,12 @@ const LoadingSpinner = styled.div`
       transform: rotate(360deg);
     }
   }
+
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
+    margin: 12px auto 20px;
+  }
 `;
 
 const PaymentSuccess = () => {
@@ -141,51 +265,53 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState("verifying");
   const [error, setError] = useState(null);
-  const [bookingDetails, setBookingDetails] = useState(null);
+  const [paymentDetails, setPaymentDetails] = useState(null);
 
   useEffect(() => {
     const verifyPayment = async () => {
       try {
-        // Get eSewa callback parameters from URL
+        // Get payment parameters from URL
         const params = new URLSearchParams(location.search);
-        const data = params.get("data");
+        const pidx = params.get("pidx");
+        const khaltiStatus = params.get("status");
+        const purchaseOrderId = params.get("purchase_order_id");
+        const transactionId = params.get("transaction_id");
 
-        if (!data) {
+        if (!pidx || !khaltiStatus) {
           setStatus("error");
-          setError("Payment verification data not found");
+          setError("Payment verification parameters missing");
           return;
         }
 
-        // Decode the base64 data from eSewa
-        try {
-          JSON.parse(atob(data));
-        } catch (e) {
-          console.error("Failed to decode eSewa data:", e);
+        // Check if payment was successful
+        if (khaltiStatus !== "Completed") {
           setStatus("error");
-          setError("Invalid payment response format");
+          setError(`Payment status: ${khaltiStatus}. Please try again or use a different payment method.`);
           return;
         }
 
         // Call backend to verify payment
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/payments/verify?data=${data}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
+        const verifyUrl = `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/payments/verify?pidx=${pidx}&status=${khaltiStatus}&transaction_id=${transactionId}&purchase_order_id=${purchaseOrderId}`;
+        
+        const response = await fetch(verifyUrl, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        );
+        });
 
         const result = await response.json();
 
-        if (response.ok && result.payment) {
+        if (response.ok && result.pidx) {
           setStatus("success");
-          setBookingDetails({
-            bookingId: result.payment.booking_id,
-            amount: result.payment.amount,
-            transactionId: result.payment.esewa_reference_id,
+          setPaymentDetails({
+            pidx: result.pidx,
+            bookingId: result.booking_id,
+            amount: result.amount,
+            transactionId: result.transaction_id,
+            room: result.room,
+            rental: result.rental,
           });
         } else {
           setStatus("error");
@@ -194,9 +320,7 @@ const PaymentSuccess = () => {
       } catch (err) {
         console.error("Payment verification error:", err);
         setStatus("error");
-        setError(
-          err.message || "An error occurred during payment verification",
-        );
+        setError(err.message || "An error occurred during payment verification");
       }
     };
 
@@ -204,15 +328,14 @@ const PaymentSuccess = () => {
   }, [location]);
 
   return (
-    <Container>
-      <Card>
+    <Page>
+      <Container>
+        <Card>
         {status === "verifying" && (
           <>
             <LoadingSpinner />
             <Title>Verifying Payment</Title>
-            <Subtitle>
-              Please wait while we verify your payment with eSewa...
-            </Subtitle>
+            <Subtitle>Please wait while we verify your payment with Khalti...</Subtitle>
           </>
         )}
 
@@ -221,33 +344,81 @@ const PaymentSuccess = () => {
             <IconWrapper>
               <CheckCircle />
             </IconWrapper>
-            <Title>Payment Successful!</Title>
-            <Subtitle>
-              Your rental has been confirmed and payment received.
-            </Subtitle>
+            <Title>Payment Successful! ✨</Title>
+            <Subtitle>Your rental has been confirmed. Here's your receipt.</Subtitle>
 
-            {bookingDetails && (
-              <InfoBox>
-                <p>
-                  <strong>Booking ID:</strong> {bookingDetails.bookingId}
-                </p>
-                <p>
-                  <strong>Amount Paid:</strong> Rs{" "}
-                  {bookingDetails.amount.toLocaleString()}
-                </p>
-                <p>
-                  <strong>Transaction ID:</strong>{" "}
-                  {bookingDetails.transactionId}
-                </p>
-              </InfoBox>
+            {paymentDetails && (
+              <>
+                {/* Room Details */}
+                {paymentDetails.room && (
+                  <RoomDetailsBox>
+                    <p>🏠 Room Details</p>
+                    <p>
+                      <strong>Room ID:</strong> #{paymentDetails.room.id}
+                    </p>
+                    <p>
+                      <strong>Room:</strong> {paymentDetails.room.title}
+                    </p>
+                    <p>
+                      <strong>Location:</strong> {paymentDetails.room.location}
+                    </p>
+                    <p>
+                      <strong>Monthly Price:</strong> Rs {paymentDetails.room.price.toLocaleString()}
+                    </p>
+                    {paymentDetails.rental && (
+                      <>
+                        <p>
+                          <strong>Rental Period:</strong> {paymentDetails.rental.months} month{paymentDetails.rental.months !== 1 ? "s" : ""}
+                        </p>
+                        <p>
+                          <strong>Check-in:</strong> {new Date(paymentDetails.rental.startDate).toLocaleDateString()}
+                        </p>
+                        <p>
+                          <strong>Check-out:</strong> {new Date(paymentDetails.rental.moveOutDate).toLocaleDateString()}
+                        </p>
+                      </>
+                    )}
+                  </RoomDetailsBox>
+                )}
+
+                {/* Payment Receipt */}
+                <PaymentReceiptBox>
+                  <p>💳 Payment Receipt</p>
+                  <p>
+                    <strong>Payment ID:</strong> {paymentDetails.pidx}
+                  </p>
+                  <p>
+                    <strong>Transaction ID:</strong> {paymentDetails.transactionId || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Amount Paid:</strong> Rs {(paymentDetails.amount / 100).toLocaleString()}
+                  </p>
+                  <p>
+                    <strong>Payment Method:</strong> Khalti Digital Wallet
+                  </p>
+                  <p>
+                    <strong>Status:</strong> <span style={{ color: "#059669", fontWeight: 700 }}>Completed</span>
+                  </p>
+                </PaymentReceiptBox>
+
+                <SuccessMessage>
+                  ✓ Your rental keys will be provided by the room owner. Check your dashboard and notifications for updates.
+                </SuccessMessage>
+              </>
             )}
 
-            <Subtitle style={{ marginBottom: "2rem" }}>
-              You'll receive a confirmation email shortly. Check your dashboard
-              for rental details.
-            </Subtitle>
-
-            <Button onClick={() => navigate("/client-dashboard")}>
+            <Button onClick={() => {
+              // Ensure token is still in localStorage before redirecting
+              const token = localStorage.getItem("token");
+              const user = localStorage.getItem("user");
+              if (token && user) {
+                navigate("/client-dashboard");
+              } else {
+                // If token is missing, redirect to login
+                setStatus("error");
+                setError("Your session has expired. Please log in again.");
+              }
+            }}>
               Go to Dashboard
             </Button>
           </>
@@ -255,49 +426,38 @@ const PaymentSuccess = () => {
 
         {status === "error" && (
           <>
-            <IconWrapper
-              style={{
-                background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-              }}
-            >
+            <ErrorIconWrapper>
               <AlertCircle />
-            </IconWrapper>
-            <Title style={{ color: "#991b1b" }}>Payment Failed</Title>
-            <Subtitle style={{ color: "#991b1b" }}>{error}</Subtitle>
+            </ErrorIconWrapper>
+            <ErrorTitle>Payment Verification Failed</ErrorTitle>
+            <ErrorSubtitle>{error}</ErrorSubtitle>
 
             <ErrorBox>
               <p>
-                Your payment could not be processed. Please try again or contact
-                support if the problem persists.
+                There was an issue verifying your payment. If money has been deducted from your Khalti account, 
+                please contact support and we will refund you.
               </p>
             </ErrorBox>
 
-            <div style={{ display: "flex", gap: "1rem" }}>
+            <ButtonGroup>
               <Button
                 onClick={() => navigate(-1)}
-                style={{
-                  flex: 1,
-                  background:
-                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                }}
+                style={{ flex: 1 }}
               >
                 Try Again
               </Button>
-              <Button
-                onClick={() => navigate("/browse-rooms")}
-                style={{
-                  flex: 1,
-                  background:
-                    "linear-gradient(135deg, #6b7280 0%, #4b5563 100%)",
-                }}
+              <SecondaryButton
+                onClick={() => navigate("/browse")}
+                style={{ flex: 1 }}
               >
                 Browse Rooms
-              </Button>
-            </div>
+              </SecondaryButton>
+            </ButtonGroup>
           </>
         )}
       </Card>
-    </Container>
+      </Container>
+    </Page>
   );
 };
 

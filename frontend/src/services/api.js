@@ -366,7 +366,7 @@ export const notificationsAPI = {
   },
 };
 
-// ==================== PAYMENTS API ====================
+// ==================== KHALTI PAYMENTS API ====================
 
 export const paymentsAPI = {
   initiatePayment: async (paymentData) => {
@@ -376,12 +376,16 @@ export const paymentsAPI = {
     });
   },
 
-  getPaymentStatus: async (transactionUUID) => {
-    return apiCall(`/payments/status/${transactionUUID}`);
+  getPaymentStatus: async (pidx) => {
+    return apiCall(`/payments/status/${pidx}`);
   },
 
   getPaymentByBooking: async (bookingId) => {
     return apiCall(`/payments/booking/${bookingId}`);
+  },
+
+  getMyPayments: async () => {
+    return apiCall(`/payments/my-payments`);
   },
 };
 

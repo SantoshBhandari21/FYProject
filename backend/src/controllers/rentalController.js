@@ -1,5 +1,5 @@
 // src/controllers/rentalController.js
-const db = require("../config/database");
+const { db } = require("../config/database");
 
 // Create a new rental request
 exports.createRental = (req, res) => {
@@ -70,15 +70,24 @@ exports.createRental = (req, res) => {
             return res.status(500).json({ message: "Failed to create rental" });
           }
 
-          // Don't create notification yet - wait for payment
+          // Don't create notification until payment is completed
+          // Notification will be created by payment controller after successful payment
 
           res.status(201).json({
-            message: "Rental initiated. Please proceed with payment.",
-            rentalId: this.lastID,
-            totalPrice: totalPrice,
-            months: months,
+            message: "Rental created successfully. Please complete payment.",
+            booking: {
+              id: this.lastID,
+              roomId: roomId,
+              clientId: clientId,
+              ownerId: ownerId,
+              status: "pending_payment",
+              moveInDate: moveInDate,
+              moveOutDate: moveOutDate,
+              totalPrice: totalPrice,
+              months: months,
+            },
           });
-        },
+        }
       );
     });
   } catch (err) {

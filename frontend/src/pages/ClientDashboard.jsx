@@ -1,10 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
+import RentalHistory from "../components/RentalHistory";
+import Receipts from "../components/Receipts";
+import "../styles/ClientDashboard.css";
 
 const ClientDashboard = () => {
+  const [activeTab, setActiveTab] = useState("rentals");
+
   return (
-    <div style={{ padding: "40px" }}>
-      <h2>Client Dashboard</h2>
-      <p>Browse rooms and book according to your preferences.</p>
+    <div className="client-dashboard">
+      <div className="dashboard-header">
+        <h1>Client Dashboard</h1>
+        <p>Manage your room rentals and view payment receipts</p>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="tab-navigation">
+        <button
+          className={`tab-btn ${activeTab === "rentals" ? "active" : ""}`}
+          onClick={() => setActiveTab("rentals")}
+        >
+          📋 Rental History
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "receipts" ? "active" : ""}`}
+          onClick={() => setActiveTab("receipts")}
+        >
+          🧾 Payment Receipts
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      <div className="tab-content">
+        {activeTab === "rentals" && <RentalHistory />}
+        {activeTab === "receipts" && <Receipts />}
+      </div>
     </div>
   );
 };

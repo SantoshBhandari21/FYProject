@@ -1,12 +1,15 @@
 // server.js
 require('dotenv').config();
 const app = require('./src/app');
-const { initDatabase } = require('./src/config/database');
+const { initDatabase, seedDatabase } = require('./src/config/database');
 
 const PORT = process.env.PORT || 5000;
 
 // Initialize database tables
 initDatabase();
+
+// Seed default test users
+seedDatabase();
 
 // Start server
 app.listen(PORT, () => {

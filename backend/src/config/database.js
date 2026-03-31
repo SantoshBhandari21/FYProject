@@ -1,6 +1,7 @@
 // src/config/database.js
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
+const bcrypt = require("bcryptjs");
 
 // Database file path
 const DB_PATH = path.resolve(__dirname, "../../rental.db");
@@ -104,25 +105,6 @@ const initDatabase = () => {
     )
   `);
 
-  // Payments table (eSewa)
-  db.run(`
-    CREATE TABLE IF NOT EXISTS payments (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      booking_id INTEGER NOT NULL,
-      user_id INTEGER NOT NULL,
-      amount REAL NOT NULL,
-      payment_method TEXT DEFAULT 'esewa',
-      transaction_uuid VARCHAR(255) UNIQUE,
-      status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'success', 'failed', 'cancelled')),
-      esewa_reference_id VARCHAR(255),
-      esewa_response TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    )
-  `);
-
   // Favorites table
   db.run(`
     CREATE TABLE IF NOT EXISTS favorites (
@@ -164,6 +146,28 @@ const initDatabase = () => {
     )
   `);
 
+  // Khalti Payments table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS khalti_payments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      booking_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      amount REAL NOT NULL,
+      payment_method TEXT DEFAULT 'khalti',
+      purchase_order_id TEXT UNIQUE NOT NULL,
+      pidx TEXT UNIQUE,
+      status TEXT DEFAULT 'initiated' CHECK(status IN ('initiated', 'pending', 'completed', 'failed', 'cancelled')),
+      transaction_id TEXT,
+      payment_url TEXT,
+      khalti_response TEXT,
+      khalti_lookup_response TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `);
+
   // Add missing columns if they don't exist (for existing databases)
   db.run(
     `
@@ -202,6 +206,79 @@ const initDatabase = () => {
   console.log("Database tables initialized successfully");
 };
 
+// Seed default test users
+const seedDatabase = () => {
+  const testUsers = [
+    {
+      full_name: "Admin User",
+      email: "admin@gmail.com",
+      password: "qwerty",
+      role: "admin",
+    },
+    {
+      full_name: "Owner User",
+      email: "owner@gmail.com",
+      password: "qwerty",
+      role: "owner",
+    },
+    {
+      full_name: "Tenant User",
+      email: "tenant@gmail.com",
+      password: "qwerty",
+      role: "client",
+    },
+  ];
+
+  // Check if admin already exists
+  db.get(
+    "SELECT id FROM users WHERE email = ?",
+    ["admin@gmail.com"],
+    (err, row) => {
+      if (err) {
+        console.error("Error checking for existing users:", err);
+        return;
+      }
+
+      // If admin already exists, skip seeding
+      if (row) {
+        console.log("Seed users already exist, skipping seeding");
+        return;
+      }
+
+      // Create seed users
+      console.log("Creating seed test users...");
+      testUsers.forEach((user) => {
+        // Hash password
+        bcrypt.hash(user.password, 10, (err, hashedPassword) => {
+          if (err) {
+            console.error("Error hashing password:", err);
+            return;
+          }
+
+          const sql = `
+            INSERT INTO users (full_name, email, password, role, is_verified, is_active)
+            VALUES (?, ?, ?, ?, 1, 1)
+          `;
+
+          db.run(
+            sql,
+            [user.full_name, user.email, hashedPassword, user.role],
+            function (err) {
+              if (err) {
+                console.error(`Error creating ${user.role} user:`, err);
+              } else {
+                console.log(
+                  `✅ Created ${user.role} user: ${user.email} (password: ${user.password})`,
+                );
+              }
+            },
+          );
+        });
+      });
+    },
+  );
+};
+
 // Helper function to run queries with promises
 const runQuery = (sql, params = []) => {
   return new Promise((resolve, reject) => {
@@ -235,6 +312,7 @@ const getAll = (sql, params = []) => {
 module.exports = {
   db,
   initDatabase,
+  seedDatabase,
   runQuery,
   getOne,
   getAll,

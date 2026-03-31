@@ -384,7 +384,7 @@ const RoomDetailsModal = ({ room, onClose }) => {
       };
 
       // Step 1: Create rental
-      const rentalResponse = await fetch(
+      const response = await fetch(
         `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/rentals`,
         {
           method: "POST",
@@ -396,15 +396,13 @@ const RoomDetailsModal = ({ room, onClose }) => {
         },
       );
 
-      const rentalDataResponse = await rentalResponse.json();
+      const data = await response.json();
 
-      if (!rentalResponse.ok) {
-        throw new Error(
-          rentalDataResponse.message || "Failed to submit rental request",
-        );
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to submit rental request");
       }
 
-      const bookingId = rentalDataResponse.booking?.id;
+      const bookingId = data.booking?.id;
 
       if (!bookingId) {
         throw new Error("Failed to retrieve booking ID from rental response");
@@ -415,19 +413,18 @@ const RoomDetailsModal = ({ room, onClose }) => {
         text: "✓ Rental created! Redirecting to payment...",
       });
 
-      // Step 2: Initiate payment
+      // Step 2: Initiate Khalti payment
       try {
         const paymentResponse = await paymentsAPI.initiatePayment({
           bookingId: bookingId,
           amount: totalPrice,
-          roomId: room.id,
         });
 
         if (paymentResponse && paymentResponse.payment_url) {
-          // Redirect to eSewa payment page
+          // Redirect to Khalti payment page
           window.location.href = paymentResponse.payment_url;
         } else {
-          throw new Error("Failed to get eSewa payment URL");
+          throw new Error("Failed to get Khalti payment URL");
         }
       } catch (paymentErr) {
         setMessage({
@@ -536,8 +533,7 @@ const RoomDetailsModal = ({ room, onClose }) => {
             <RentalSection>
               <RentalTitle>Ready to rent this room?</RentalTitle>
               <p style={{ color: "#64748b", marginBottom: "1.5rem" }}>
-                Click below to proceed with rental. You'll need to pay the
-                entire rental amount in advance through eSewa.
+                Click below to proceed with rental. You'll need to pay the entire rental amount in advance through Khalti.
               </p>
               <RentButton
                 onClick={() => setShowRentalForm(true)}

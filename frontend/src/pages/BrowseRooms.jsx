@@ -591,7 +591,7 @@ const BrowseRooms = () => {
 
     return (
       <Card $list={isListView}>
-        <ImgWrap list={isListView}>
+        <ImgWrap $list={isListView}>
           <Img
             src={imageUrl}
             alt={room.title}
