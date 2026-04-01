@@ -20,8 +20,19 @@ db.run("PRAGMA foreign_keys = ON");
 
 // Initialize database tables
 const initDatabase = () => {
-  // ✅ USERS table
-  db.run(`
+  // Clean up any incomplete migrations first
+  db.serialize(() => {
+    // Drop users_old table if it exists (from incomplete migrations)
+    db.run("DROP TABLE IF EXISTS users_old", (err) => {
+      if (err) {
+        console.log("No users_old table to clean up");
+      } else {
+        console.log("✅ Cleaned up incomplete migration table");
+      }
+    });
+
+    // ✅ USERS table
+    db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       full_name TEXT NOT NULL,
@@ -36,8 +47,8 @@ const initDatabase = () => {
     )
   `);
 
-  // Rooms/Properties table
-  db.run(`
+    // Rooms/Properties table
+    db.run(`
     CREATE TABLE IF NOT EXISTS rooms (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       owner_id INTEGER NOT NULL,
@@ -59,8 +70,8 @@ const initDatabase = () => {
     )
   `);
 
-  // Room images table
-  db.run(`
+    // Room images table
+    db.run(`
     CREATE TABLE IF NOT EXISTS room_images (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       room_id INTEGER NOT NULL,
@@ -70,8 +81,8 @@ const initDatabase = () => {
     )
   `);
 
-  // Bookings table
-  db.run(`
+    // Bookings table
+    db.run(`
     CREATE TABLE IF NOT EXISTS bookings (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       room_id INTEGER NOT NULL,
@@ -91,8 +102,8 @@ const initDatabase = () => {
     )
   `);
 
-  // Reviews/Ratings table
-  db.run(`
+    // Reviews/Ratings table
+    db.run(`
     CREATE TABLE IF NOT EXISTS reviews (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       room_id INTEGER NOT NULL,
@@ -105,8 +116,8 @@ const initDatabase = () => {
     )
   `);
 
-  // Favorites table
-  db.run(`
+    // Favorites table
+    db.run(`
     CREATE TABLE IF NOT EXISTS favorites (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       tenant_id INTEGER NOT NULL,
@@ -118,7 +129,7 @@ const initDatabase = () => {
     )
   `);
 
-  db.run(`
+    db.run(`
     CREATE TABLE IF NOT EXISTS messages (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -130,8 +141,8 @@ const initDatabase = () => {
     )
   `);
 
-  // Notifications table
-  db.run(`
+    // Notifications table
+    db.run(`
     CREATE TABLE IF NOT EXISTS notifications (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
@@ -146,8 +157,8 @@ const initDatabase = () => {
     )
   `);
 
-  // Khalti Payments table
-  db.run(`
+    // Khalti Payments table
+    db.run(`
     CREATE TABLE IF NOT EXISTS khalti_payments (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       booking_id INTEGER NOT NULL,
@@ -168,40 +179,41 @@ const initDatabase = () => {
     )
   `);
 
-  // Add missing columns if they don't exist (for existing databases)
-  db.run(
-    `
+    // Add missing columns if they don't exist (for existing databases)
+    db.run(
+      `
     PRAGMA table_info(users)
   `,
-    (err, rows) => {
-      if (err) {
-        console.error("Error checking users table:", err);
-        return;
-      }
-
-      // Check if profile_photo column exists
-      db.all("PRAGMA table_info(users)", (err, columns) => {
+      (err, rows) => {
         if (err) {
-          console.error("Error getting table info:", err);
+          console.error("Error checking users table:", err);
           return;
         }
 
-        const hasProfilePhoto = columns.some(
-          (col) => col.name === "profile_photo",
-        );
+        // Check if profile_photo column exists
+        db.all("PRAGMA table_info(users)", (err, columns) => {
+          if (err) {
+            console.error("Error getting table info:", err);
+            return;
+          }
 
-        if (!hasProfilePhoto) {
-          db.run("ALTER TABLE users ADD COLUMN profile_photo TEXT", (err) => {
-            if (err) {
-              console.error("Error adding profile_photo column:", err);
-            } else {
-              console.log("Added profile_photo column to users table");
-            }
-          });
-        }
-      });
-    },
-  );
+          const hasProfilePhoto = columns.some(
+            (col) => col.name === "profile_photo",
+          );
+
+          if (!hasProfilePhoto) {
+            db.run("ALTER TABLE users ADD COLUMN profile_photo TEXT", (err) => {
+              if (err) {
+                console.error("Error adding profile_photo column:", err);
+              } else {
+                console.log("Added profile_photo column to users table");
+              }
+            });
+          }
+        });
+      },
+    );
+  });
 
   console.log("Database tables initialized successfully");
 };

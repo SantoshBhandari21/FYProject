@@ -387,6 +387,21 @@ const Header = () => {
               </ProfileIcon>
             </>
           )}
+          {user?.role === "owner" && (
+            <>
+              <NavLink
+                to="/owner/dashboard"
+                className={isActive("/owner/dashboard")}
+              >
+                Owner Dashboard
+              </NavLink>
+              <NotificationBell isNav={true} />
+              <ProfileIcon to="/profile" title="Profile">
+                <i className="fa-solid fa-circle-user"></i>
+                Profile
+              </ProfileIcon>
+            </>
+          )}
         </Nav>
 
         <NavActions>
@@ -436,6 +451,15 @@ const Header = () => {
               Tenant Dashboard
             </MobileLink>
           )}
+          {user?.role === "owner" && (
+            <MobileLink
+              to="/owner/dashboard"
+              className={isActive("/owner/dashboard")}
+              onClick={isMobile}
+            >
+              Owner Dashboard
+            </MobileLink>
+          )}
         </MobileNav>
 
         <MobileActions>
@@ -451,6 +475,11 @@ const Header = () => {
           ) : (
             <>
               {user?.role === "tenant" && (
+                <MobileProfileIcon to="/profile" onClick={isMobile}>
+                  <i className="fa-solid fa-circle-user"></i> Profile
+                </MobileProfileIcon>
+              )}
+              {user?.role === "owner" && (
                 <MobileProfileIcon to="/profile" onClick={isMobile}>
                   <i className="fa-solid fa-circle-user"></i> Profile
                 </MobileProfileIcon>

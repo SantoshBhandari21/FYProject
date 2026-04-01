@@ -229,7 +229,7 @@ const getRoomById = async (req, res) => {
     const reviews = await getAll(
       `SELECT rev.*, u.full_name as client_name
        FROM reviews rev
-       LEFT JOIN users u ON rev.client_id = u.id
+       LEFT JOIN users u ON rev.tenant_id = u.id
        WHERE rev.room_id = ?
        ORDER BY rev.created_at DESC`,
       [req.params.id],
@@ -439,14 +439,14 @@ const addToFavorites = async (req, res) => {
     if (!room) return res.status(404).json({ message: "Room not found" });
 
     const existing = await getOne(
-      "SELECT id FROM favorites WHERE client_id = ? AND room_id = ?",
+      "SELECT id FROM favorites WHERE tenant_id = ? AND room_id = ?",
       [req.user.id, req.params.id],
     );
 
     if (existing)
       return res.status(400).json({ message: "Room already in favorites" });
 
-    await runQuery("INSERT INTO favorites (client_id, room_id) VALUES (?, ?)", [
+    await runQuery("INSERT INTO favorites (tenant_id, room_id) VALUES (?, ?)", [
       req.user.id,
       req.params.id,
     ]);
@@ -464,7 +464,7 @@ const addToFavorites = async (req, res) => {
 const removeFromFavorites = async (req, res) => {
   try {
     await runQuery(
-      "DELETE FROM favorites WHERE client_id = ? AND room_id = ?",
+      "DELETE FROM favorites WHERE tenant_id = ? AND room_id = ?",
       [req.user.id, req.params.id],
     );
     return res.json({ message: "Room removed from favorites" });
@@ -486,7 +486,7 @@ const getFavorites = async (req, res) => {
        FROM favorites f
        JOIN rooms r ON f.room_id = r.id
        JOIN users u ON r.owner_id = u.id
-       WHERE f.client_id = ?
+       WHERE f.tenant_id = ?
        ORDER BY f.created_at DESC`,
       [req.user.id],
     );

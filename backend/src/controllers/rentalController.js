@@ -46,7 +46,7 @@ exports.createRental = (req, res) => {
 
       // Create rental (using bookings table)
       const sql = `
-        INSERT INTO bookings (room_id, client_id, owner_id, booking_date, move_in_date, move_out_date, status, total_price)
+        INSERT INTO bookings (room_id, tenant_id, owner_id, booking_date, move_in_date, move_out_date, status, total_price)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
@@ -87,7 +87,7 @@ exports.createRental = (req, res) => {
               months: months,
             },
           });
-        }
+        },
       );
     });
   } catch (err) {
@@ -107,7 +107,7 @@ exports.getMyRentals = (req, res) => {
       FROM bookings b
       JOIN rooms r ON b.room_id = r.id
       JOIN users u ON b.owner_id = u.id
-      WHERE b.client_id = ?
+      WHERE b.tenant_id = ?
       ORDER BY b.created_at DESC
     `;
 
@@ -115,8 +115,8 @@ exports.getMyRentals = (req, res) => {
 
     if (status) {
       sql = sql.replace(
-        "WHERE b.client_id = ?",
-        "WHERE b.client_id = ? AND b.status = ?",
+        "WHERE b.tenant_id = ?",
+        "WHERE b.tenant_id = ? AND b.status = ?",
       );
       params.push(status);
     }
@@ -145,7 +145,7 @@ exports.getRentalRequests = (req, res) => {
       SELECT b.*, r.title, r.price, r.main_image, r.location, u.full_name as client_name, u.email as client_email
       FROM bookings b
       JOIN rooms r ON b.room_id = r.id
-      JOIN users u ON b.client_id = u.id
+      JOIN users u ON b.tenant_id = u.id
       WHERE b.owner_id = ?
       ORDER BY b.created_at DESC
     `;
@@ -207,4 +207,3 @@ exports.getRentalById = (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-

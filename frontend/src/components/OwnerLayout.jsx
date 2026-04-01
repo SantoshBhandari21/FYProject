@@ -5,7 +5,7 @@ import NotificationBell from "./NotificationBell";
 
 const Container = styled.div`
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 1fr;
   min-height: 100vh;
 
   @media (max-width: 960px) {
@@ -14,6 +14,7 @@ const Container = styled.div`
 `;
 
 const Sidebar = styled.aside`
+  display: none;
   background: #ffffff;
   border-right: 1px solid #e7edf5;
   padding: 16px;
@@ -97,31 +98,6 @@ const SidebarFooter = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-`;
-
-const NotificationButton = styled.button`
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #e7edf5;
-  border-radius: 12px;
-  background: transparent;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 600;
-  color: #1f2937;
-
-  &:hover {
-    background: #f3f6fb;
-    border-color: #8b5cf6;
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
 `;
 
 const NotificationLabel = styled.span`
@@ -228,16 +204,10 @@ const OwnerLayout = () => {
         <Nav></Nav>
 
         <SidebarFooter>
-          <NotificationButton
-            onClick={() => setNotificationsOpen(!notificationsOpen)}
-            title="Notifications"
-          >
-            <NotificationBell
-              isOpen={notificationsOpen}
-              setIsOpen={setNotificationsOpen}
-            />
-            <NotificationLabel>Notifications</NotificationLabel>
-          </NotificationButton>
+          <NotificationBell
+            isOpen={notificationsOpen}
+            setIsOpen={setNotificationsOpen}
+          />
           <ProfileButton
             onClick={() => handleNavigation("Profile", "/profile")}
             title="Profile"
