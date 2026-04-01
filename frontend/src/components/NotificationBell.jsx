@@ -51,9 +51,10 @@ const Badge = styled.span`
 
 const NotificationDropdown = styled.div`
   position: absolute;
-  top: 50%;
-  left: 100%;
-  transform: translateY(-50%);
+  top: 100%;
+  left: 0;
+  right: auto;
+  transform: none;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -62,17 +63,16 @@ const NotificationDropdown = styled.div`
   max-height: 400px;
   overflow-y: auto;
   z-index: 1000;
-  margin-left: 12px;
+  margin-top: 8px;
   display: ${(props) => (props.$isOpen ? "block" : "none")};
 
   @media (max-width: 960px) {
     position: fixed;
-    top: 50%;
+    top: auto;
     right: 20px;
     left: auto;
-    margin-left: 0;
+    margin-top: 0;
     width: 320px;
-    transform: translateY(-50%);
   }
 
   @media (max-width: 480px) {

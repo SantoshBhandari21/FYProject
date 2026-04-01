@@ -548,12 +548,15 @@ const BrowseRooms = () => {
             ),
           ));
 
+      const isAvailable = room.is_available !== 0;
+
       return (
         matchesSearch &&
         matchesLocation &&
         matchesPrice &&
         matchesBedrooms &&
-        matchesAmenities
+        matchesAmenities &&
+        isAvailable
       );
     });
   }, [searchQuery, location, filters, rooms]);

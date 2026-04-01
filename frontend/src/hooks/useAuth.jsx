@@ -17,9 +17,21 @@ export const AuthProvider = ({ children }) => {
   const [userType, setUserType] = useState(null); // 'landlord' or 'tenant'
   const [loading, setLoading] = useState(false);
 
-  // Clear auth on app initialization
+  // Load user from localStorage on app initialization
   useEffect(() => {
-    logoutUser();
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setUserType(parsedUser.role);
+      } catch (error) {
+        console.error("Failed to parse stored user:", error);
+        // Only clear if there's actually bad data
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+      }
+    }
   }, []);
 
   const login = async (credentials) => {

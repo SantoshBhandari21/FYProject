@@ -224,7 +224,7 @@ exports.verifyPayment = (req, res) => {
                 const daysRented = Math.ceil((moveOutDate - startDate) / (1000 * 60 * 60 * 24));
                 const monthsRented = Math.ceil(daysRented / 30);
 
-                // Update booking status to approved
+                // Update booking status to approved and mark room as unavailable
                 const updateBookingSql =
                   "UPDATE bookings SET status = 'approved' WHERE id = ?";
 
@@ -234,7 +234,15 @@ exports.verifyPayment = (req, res) => {
                     return res.status(500).json({ message: "Failed to approve booking" });
                   }
 
-                  // Create notification
+                  // Mark room as unavailable
+                  const updateRoomSql = "UPDATE rooms SET is_available = 0 WHERE id = ?";
+                  db.run(updateRoomSql, [paymentRecord.room_id], (roomErr) => {
+                    if (roomErr) {
+                      console.error("Database room update error:", roomErr);
+                      return res.status(500).json({ message: "Failed to update room availability" });
+                    }
+
+                    // Create notification
                   const notificationSql = `
                     INSERT INTO notifications (user_id, type, title, message, booking_id, is_read)
                     VALUES (

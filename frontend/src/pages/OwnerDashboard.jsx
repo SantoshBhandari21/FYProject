@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import "../styles/OwnerDashboard.css";
-import { roomsAPI, roomAPI } from "../services/api";
+import { roomsAPI, roomAPI, rentalsAPI } from "../services/api";
 import RoomForm from "../components/RoomForm";
 
 const ContentWrapper = styled.div`
@@ -19,9 +19,11 @@ const OwnerDashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingRoom, setEditingRoom] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [rentalRequests, setRentalRequests] = useState([]);
 
   useEffect(() => {
     fetchMyRooms();
+    fetchRentalRequests();
   }, []);
 
   const fetchMyRooms = async () => {
@@ -38,6 +40,16 @@ const OwnerDashboard = () => {
       setError(errorMsg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRentalRequests = async () => {
+    try {
+      const data = await rentalsAPI.getRentalRequests("approved");
+      console.log("Rental requests fetched:", data);
+      setRentalRequests(data.requests || []);
+    } catch (err) {
+      console.error("Fetch rental requests error:", err);
     }
   };
 
@@ -123,11 +135,17 @@ const OwnerDashboard = () => {
             <div className="analytics-hint">Ready to book</div>
           </div>
           <div className="analytics-card">
-            <div className="analytics-label">Booked Rooms</div>
+            <div className="analytics-label">Rooms on Rent</div>
             <div className="analytics-value">
-              {rooms.filter((r) => !r.is_available).length}
+              {
+                new Set(
+                  rentalRequests
+                    .filter((req) => req.status === "approved")
+                    .map((req) => req.room_id),
+                ).size
+              }
             </div>
-            <div className="analytics-hint">Unavailable</div>
+            <div className="analytics-hint">Successfully rented</div>
           </div>
         </div>
       )}
